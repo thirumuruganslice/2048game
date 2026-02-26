@@ -47,67 +47,215 @@ body {
   position: relative;
 }
 
-body::before {
-  content: "";
+/* ── space canvas ───────────────────────────────────────────────────────── */
+
+.space-canvas {
   position: fixed;
   inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Far stars — tiny, slow drift upward */
+.stars-far {
+  position: absolute;
+  inset: -200px;
   background-image:
-    radial-gradient(
-      2px 2px at 20px 30px,
-      rgba(255, 255, 255, 0.7),
-      transparent 60%
-    ),
-    radial-gradient(
-      1px 1px at 120px 80px,
-      rgba(255, 255, 255, 0.6),
-      transparent 60%
-    ),
-    radial-gradient(
-      2px 2px at 220px 140px,
-      rgba(255, 255, 255, 0.5),
-      transparent 60%
-    ),
-    radial-gradient(
-      1px 1px at 320px 220px,
-      rgba(255, 255, 255, 0.6),
-      transparent 60%
-    ),
-    radial-gradient(
-      2px 2px at 420px 60px,
-      rgba(255, 255, 255, 0.5),
-      transparent 60%
-    ),
-    radial-gradient(
-      1px 1px at 520px 180px,
-      rgba(255, 255, 255, 0.6),
-      transparent 60%
-    );
-  background-size: 600px 400px;
-  opacity: 0.7;
-  animation: star-drift 24s linear infinite;
-  pointer-events: none;
-  z-index: 0;
+    radial-gradient(1px 1px at 8% 12%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 22% 38%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 35% 5%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 48% 55%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 61% 22%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1px 1px at 74% 70%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 85% 14%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 92% 46%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 15% 80%, rgba(255, 255, 255, 0.65), transparent),
+    radial-gradient(1px 1px at 55% 88%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 30% 65%, rgba(200, 220, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 68% 33%, rgba(200, 220, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 78% 90%, rgba(200, 220, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 5% 50%, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 42% 18%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 96% 75%, rgba(255, 255, 255, 0.65), transparent);
+  background-size: 700px 500px;
+  animation: stars-drift-far 40s linear infinite;
 }
 
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-    500px 500px at 70% 80%,
-    rgba(92, 231, 255, 0.12),
-    transparent 65%
-  );
-  pointer-events: none;
-  z-index: 0;
+/* Near stars — larger, faster, creates parallax depth */
+.stars-near {
+  position: absolute;
+  inset: -200px;
+  background-image:
+    radial-gradient(2px 2px at 12% 25%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 33% 60%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 57% 10%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(2px 2px at 80% 42%, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(2px 2px at 90% 8%, rgba(180, 210, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 20% 75%, rgba(180, 210, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 66% 85%, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(2px 2px at 44% 48%, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(3px 3px at 72% 28%, rgba(255, 220, 180, 0.8), transparent),
+    radial-gradient(2px 2px at 3% 90%, rgba(255, 255, 255, 0.75), transparent);
+  background-size: 900px 700px;
+  animation: stars-drift-near 22s linear infinite;
 }
 
-@keyframes star-drift {
-  0% {
+@keyframes stars-drift-far {
+  from {
     transform: translateY(0);
   }
-  100% {
-    transform: translateY(-120px);
+  to {
+    transform: translateY(-500px);
+  }
+}
+
+@keyframes stars-drift-near {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-700px);
+  }
+}
+
+/* ── Black hole ─────────────────────────────────────────────────────────── */
+
+.black-hole {
+  position: absolute;
+  bottom: 4%;
+  right: 4%;
+  width: clamp(140px, 18vw, 220px);
+  height: clamp(140px, 18vw, 220px);
+}
+
+/* Accretion disk — spinning conic gradient */
+.bh-disk {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(255, 100, 20, 0.55) 10%,
+    rgba(255, 180, 60, 0.7) 22%,
+    rgba(255, 230, 120, 0.5) 32%,
+    rgba(160, 80, 255, 0.45) 48%,
+    rgba(80, 140, 255, 0.4) 62%,
+    rgba(255, 100, 20, 0.35) 78%,
+    transparent 100%
+  );
+  filter: blur(6px);
+  animation: bh-spin 9s linear infinite;
+  transform-origin: center;
+}
+
+/* Outer gravitational glow */
+.bh-glow {
+  position: absolute;
+  inset: -35%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(140, 40, 255, 0.18) 0%,
+    rgba(60, 20, 120, 0.12) 40%,
+    transparent 70%
+  );
+  animation: bh-pulse 5s ease-in-out infinite alternate;
+}
+
+/* The black core */
+.bh-core {
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background: #000;
+  box-shadow:
+    0 0 20px 8px rgba(0, 0, 0, 0.9),
+    0 0 50px 16px rgba(60, 0, 100, 0.5),
+    0 0 100px 30px rgba(40, 0, 80, 0.25);
+}
+
+/* Orbiting satellite around black hole */
+.bh-orbit {
+  position: absolute;
+  inset: -45%;
+  border-radius: 50%;
+  border: 1px solid rgba(160, 200, 255, 0.12);
+  animation: bh-orbit 7s linear infinite;
+}
+
+.bh-satellite {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #c8e0ff, #6090d0);
+  box-shadow: 0 0 10px 3px rgba(160, 210, 255, 0.8);
+}
+
+@keyframes bh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes bh-orbit {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+@keyframes bh-pulse {
+  from {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+/* ── Nebula side glows ───────────────────────────────────────────────────── */
+
+.nebula-left {
+  position: absolute;
+  top: 10%;
+  left: -10%;
+  width: 40vw;
+  height: 60vh;
+  background: radial-gradient(
+    ellipse at 30% 50%,
+    rgba(60, 80, 255, 0.1),
+    transparent 65%
+  );
+  animation: nebula-breathe 12s ease-in-out infinite alternate;
+}
+
+.nebula-right {
+  position: absolute;
+  top: 30%;
+  right: -8%;
+  width: 35vw;
+  height: 55vh;
+  background: radial-gradient(
+    ellipse at 70% 40%,
+    rgba(140, 40, 220, 0.09),
+    transparent 65%
+  );
+  animation: nebula-breathe 16s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes nebula-breathe {
+  from {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.15);
   }
 }
 
@@ -146,6 +294,38 @@ body::after {
   font-size: 0.95rem;
 }
 
+.score-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.score-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(140, 180, 255, 0.25);
+  background: rgba(12, 20, 50, 0.65);
+  box-shadow: inset 0 0 16px rgba(80, 140, 255, 0.12);
+}
+
+.score-label {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.score-value,
+.best-value {
+  font-family: "Orbitron", "Space Grotesk", sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 0 12px rgba(120, 200, 255, 0.45);
+}
+
 .board-shell {
   background: linear-gradient(
     140deg,
@@ -176,18 +356,301 @@ body::after {
   border: 1px solid rgba(140, 180, 255, 0.12);
 }
 
-.hint {
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  text-align: center;
+/* -------------------------------------------------------------------------
+   Board shell — needs relative so tiles can sit on top
+   ---------------------------------------------------------------------- */
+
+.board-shell {
+  position: relative;
 }
+
+/* -------------------------------------------------------------------------
+   Tile container — absolute overlay on top of the grid cells
+   ---------------------------------------------------------------------- */
+
+.tile-container {
+  position: absolute;
+  inset: 0;
+  padding: 16px;
+}
+
+/* -------------------------------------------------------------------------
+   Individual tile
+   ---------------------------------------------------------------------- */
+
+.tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Orbitron", "Space Grotesk", sans-serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #e6eefc;
+  user-select: none;
+  /* transform reserved for scale/pop only */
+  will-change: left, top;
+  z-index: 2;
+}
+
+/* Sliding tiles */
+.tile.tile-moving {
+  transition:
+    left 120ms cubic-bezier(0.25, 0, 0.25, 1),
+    top 120ms cubic-bezier(0.25, 0, 0.25, 1);
+}
+
+/* Ghost tiles (pre-merge source tiles) — slide and fade out together */
+.tile.tile-ghost {
+  z-index: 1;
+}
+
+.tile.tile-ghost.tile-moving {
+  transition:
+    left 120ms cubic-bezier(0.25, 0, 0.25, 1),
+    top 120ms cubic-bezier(0.25, 0, 0.25, 1),
+    opacity 120ms ease;
+}
+
+/* space-themed tile colours — each value is a different "planet/star" */
+.tile-2 {
+  background: rgba(100, 140, 255, 0.45);
+  border: 1px solid rgba(100, 140, 255, 0.6);
+}
+.tile-4 {
+  background: rgba(130, 100, 255, 0.5);
+  border: 1px solid rgba(130, 100, 255, 0.65);
+}
+.tile-8 {
+  background: rgba(60, 180, 255, 0.55);
+  border: 1px solid rgba(60, 180, 255, 0.7);
+  font-size: 1.5rem;
+}
+.tile-16 {
+  background: rgba(40, 220, 200, 0.55);
+  border: 1px solid rgba(40, 220, 200, 0.7);
+  font-size: 1.4rem;
+}
+.tile-32 {
+  background: rgba(80, 240, 140, 0.55);
+  border: 1px solid rgba(80, 240, 140, 0.7);
+  font-size: 1.4rem;
+}
+.tile-64 {
+  background: rgba(255, 200, 60, 0.6);
+  border: 1px solid rgba(255, 200, 60, 0.75);
+  font-size: 1.3rem;
+}
+.tile-128 {
+  background: rgba(255, 140, 50, 0.65);
+  border: 1px solid rgba(255, 140, 50, 0.8);
+  font-size: 1.2rem;
+  box-shadow: 0 0 18px rgba(255, 140, 50, 0.4);
+}
+.tile-256 {
+  background: rgba(255, 80, 80, 0.65);
+  border: 1px solid rgba(255, 80, 80, 0.8);
+  font-size: 1.1rem;
+  box-shadow: 0 0 22px rgba(255, 80, 80, 0.45);
+}
+.tile-512 {
+  background: rgba(220, 60, 220, 0.65);
+  border: 1px solid rgba(220, 60, 220, 0.8);
+  font-size: 1rem;
+  box-shadow: 0 0 26px rgba(220, 60, 220, 0.45);
+}
+.tile-1024 {
+  background: rgba(100, 200, 255, 0.8);
+  border: 1px solid rgba(100, 200, 255, 0.9);
+  font-size: 0.85rem;
+  box-shadow: 0 0 32px rgba(100, 200, 255, 0.55);
+}
+.tile-2048 {
+  background: rgba(255, 230, 80, 0.9);
+  border: 1px solid #ffe650;
+  color: #1a1a2e;
+  font-size: 0.85rem;
+  box-shadow: 0 0 40px rgba(255, 230, 80, 0.7);
+}
+.tile-super {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #fff;
+  color: #1a1a2e;
+  font-size: 0.75rem;
+  box-shadow: 0 0 50px rgba(255, 255, 255, 0.6);
+}
+
+/* -------------------------------------------------------------------------
+   Tile animations
+   ---------------------------------------------------------------------- */
+
+/* New tile appears after ghosts slide away */
+.tile-new {
+  animation: tile-appear 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+/* Merged result pops in after slide (120ms) completes */
+.tile-merged {
+  z-index: 3;
+  animation: tile-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both;
+}
+
+@keyframes tile-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes tile-pop {
+  0% {
+    transform: scale(0.8);
+  }
+  55% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Game message overlay (game over / you win)
+   ---------------------------------------------------------------------- */
+
+.game-message {
+  display: none;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(6px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+  z-index: 50;
+  animation: overlay-fade 0.3s ease;
+}
+
+.game-message.active {
+  display: flex;
+}
+
+.game-message.won {
+  background: rgba(255, 230, 80, 0.18);
+}
+.game-message.over {
+  background: rgba(5, 7, 20, 0.72);
+}
+
+.game-message-text {
+  font-family: "Orbitron", sans-serif;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 900;
+  color: #e6eefc;
+  text-shadow: 0 0 20px rgba(120, 200, 255, 0.7);
+}
+
+.game-message.won .game-message-text {
+  color: #ffe650;
+  text-shadow: 0 0 24px rgba(255, 230, 80, 0.8);
+}
+
+.retry-button {
+  padding: 10px 28px;
+  border-radius: 100px;
+  border: 1px solid rgba(140, 180, 255, 0.5);
+  background: rgba(120, 150, 255, 0.2);
+  color: #e6eefc;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+
+.retry-button:hover {
+  background: rgba(120, 150, 255, 0.38);
+  transform: translateY(-2px);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+}
+
+@keyframes overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   New Game button
+   ---------------------------------------------------------------------- */
+
+.new-game-button {
+  align-self: flex-end;
+  padding: 9px 22px;
+  border-radius: 100px;
+  border: 1px solid rgba(140, 180, 255, 0.35);
+  background: rgba(120, 150, 255, 0.15);
+  color: #e6eefc;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+
+.new-game-button:hover {
+  background: rgba(120, 150, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.new-game-button:active {
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ---------------------------------------------------------------------- */
 
 @media (max-width: 520px) {
   :root {
     --gap: 10px;
   }
-
   .board-shell {
     padding: 12px;
+  }
+  .tile-container {
+    padding: 12px;
+  }
+  .tile {
+    font-size: 1.2rem;
+  }
+  .tile-128,
+  .tile-256,
+  .tile-512 {
+    font-size: 0.9rem;
+  }
+  .tile-1024,
+  .tile-2048,
+  .tile-super {
+    font-size: 0.7rem;
   }
 }

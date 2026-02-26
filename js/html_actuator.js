@@ -1,202 +1,137 @@
-// ==========================================================================
-// HTMLActuator — DOM rendering, animations, and UI updates
+﻿// ==========================================================================
+// HTMLActuator — renders tiles, score, slide animations, win/lose overlay
 // ==========================================================================
 
 function HTMLActuator() {
-    this.tileContainer = document.querySelector(".tile-container");
-    this.scoreContainer = document.querySelector(".score-container");
-    this.bestContainer = document.querySelector(".best-container");
-    this.movesContainer = document.querySelector(".moves-container");
-    this.messageContainer = document.querySelector(".game-message");
-    this.gameContainer = document.querySelector(".game-container");
-    this.deleteBanner = document.querySelector(".delete-mode-banner");
-    this.undoButton = document.querySelector(".undo-button");
-    this.deleteButton = document.querySelector(".delete-tile-button");
-
-    this.score = 0;
-
-    // Calculate tile sizes on init and resize
-    this._tileSizes = null;
-    this._calculateSizes();
-    window.addEventListener("resize", this._calculateSizes.bind(this));
+    this.shell = document.querySelector(".board-shell");
+    this.tiles = document.querySelector(".tile-container");
+    this.message = document.querySelector(".game-message");
+    this.msgText = document.querySelector(".game-message-text");
+    this.scoreEl = document.querySelector(".score-value");
+    this.bestEl = document.querySelector(".best-value");
+    this._s = null;
 }
 
-HTMLActuator.prototype._calculateSizes = function () {
-    var container = this.gameContainer;
-    if (!container) return;
-
-    var rect = container.getBoundingClientRect();
-    var containerSize = rect.width;
-    var gridSize = 4;
-    var padding = 12;
-    var gap = 12;
-
-    var totalGaps = (gridSize - 1) * gap;
-    var availableSpace = containerSize - (padding * 2) - totalGaps;
-    var cellSize = availableSpace / gridSize;
-
-    this._tileSizes = {
-        containerSize: containerSize,
-        padding: padding,
-        gap: gap,
-        cellSize: cellSize,
-        step: cellSize + gap
+// Read actual rendered cell positions from the DOM — no math guessing.
+// Uses tile-container as the reference so that `left/top` values placed on
+// absolutely-positioned tiles land exactly on the correct grid cell.
+HTMLActuator.prototype._measure = function () {
+    var firstCell = document.querySelector(".grid-cell");
+    if (!firstCell) return;
+    // tile-container is the containing block for absolutely-positioned tiles,
+    // so we measure offset relative to IT, not the board-shell.
+    var containerRect = this.tiles.getBoundingClientRect();
+    var cellRect = firstCell.getBoundingClientRect();
+    var gapPx = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--gap")
+    ) || 12;
+    this._s = {
+        ox: cellRect.left - containerRect.left,
+        oy: cellRect.top - containerRect.top,
+        cell: cellRect.width,
+        step: cellRect.width + gapPx
     };
 };
 
-HTMLActuator.prototype.actuate = function (grid, metadata) {
+// px position of a grid coordinate (col, row)
+HTMLActuator.prototype._pos = function (col, row) {
+    var s = this._s;
+    return { left: s.ox + col * s.step, top: s.oy + row * s.step };
+};
+
+// ---- Main render ---------------------------------------------------------
+
+HTMLActuator.prototype.render = function (grid, meta) {
     var self = this;
-
-    window.requestAnimationFrame(function () {
-        self.clearContainer(self.tileContainer);
-        self._calculateSizes();
-
-        grid.cells.forEach(function (column) {
-            column.forEach(function (cell) {
-                if (cell) self.addTile(cell);
-            });
+    this._measure();
+    this._clear();
+    grid.cells.forEach(function (col) {
+        col.forEach(function (tile) {
+            if (tile) self._drawTile(tile);
         });
-
-        self.updateScore(metadata.score);
-        self.updateBestScore(metadata.bestScore);
-        self.updateMoves(metadata.moves);
-        self.updateUndoButton(metadata.canUndo);
-
-        if (metadata.terminated) {
-            if (metadata.over) {
-                self.message(false);
-            } else if (metadata.won) {
-                self.message(true);
-            }
-        }
     });
-};
-
-HTMLActuator.prototype.continueGame = function () {
-    this.clearMessage();
-};
-
-HTMLActuator.prototype.clearContainer = function (container) {
-    while (container.firstChild) {
-        container.removeChild(container.firstChild);
+    if (this.scoreEl) this.scoreEl.textContent = meta.score;
+    if (this.bestEl) this.bestEl.textContent = meta.bestScore;
+    if (meta.terminated) {
+        if (meta.over) self._showMessage("Mission Failed", "over");
+        else if (meta.won) self._showMessage("You reached 2048!", "won");
     }
 };
 
-HTMLActuator.prototype.addTile = function (tile) {
+HTMLActuator.prototype.hideMessage = function () {
+    this.message.classList.remove("active", "over", "won");
+};
+
+HTMLActuator.prototype._clear = function () {
+    while (this.tiles.firstChild) this.tiles.removeChild(this.tiles.firstChild);
+};
+
+// ---- Draw a single tile --------------------------------------------------
+// isGhost = true when drawing the pre-merge source tiles (they slide + fade out)
+
+HTMLActuator.prototype._drawTile = function (tile, isGhost) {
     var self = this;
-    var sizes = this._tileSizes;
-    if (!sizes) return;
+    var s = this._s;
+    if (!s) return;
 
-    var wrapper = document.createElement("div");
-    var inner = document.createElement("div");
-    var position = tile.previousPosition || { x: tile.x, y: tile.y };
-
-    var classes = ["tile", "tile-" + tile.value];
-    if (tile.value > 2048) classes.push("tile-super");
-
-    // Set tile size
-    wrapper.style.width = sizes.cellSize + "px";
-    wrapper.style.height = sizes.cellSize + "px";
-
-    // Set position
-    var setPos = function (pos) {
-        var left = sizes.padding + (pos.x * sizes.step);
-        var top = sizes.padding + (pos.y * sizes.step);
-        wrapper.style.transform = "translate(" + left + "px, " + top + "px)";
-    };
-
-    // Position class for delete-mode click detection
-    var posClass = "tile-position-" + (tile.x + 1) + "-" + (tile.y + 1);
-    classes.push(posClass);
-
-    setPos(position);
-
-    if (tile.previousPosition) {
-        window.requestAnimationFrame(function () {
-            setPos({ x: tile.x, y: tile.y });
-            // Update position class
-            wrapper.className = wrapper.className.replace(/tile-position-\d+-\d+/, "tile-position-" + (tile.x + 1) + "-" + (tile.y + 1));
-        });
-    } else if (tile.mergedFrom) {
-        classes.push("tile-merged");
-        tile.mergedFrom.forEach(function (merged) {
-            self.addTile(merged);
-        });
-    } else {
-        classes.push("tile-new");
+    // Recurse: draw the two source tiles as slide-out ghosts FIRST so they
+    // sit beneath the merged result tile.
+    if (!isGhost && tile.mergedFrom) {
+        tile.mergedFrom.forEach(function (t) { self._drawTile(t, true); });
     }
 
-    this.applyClasses(wrapper, classes);
-    inner.classList.add("tile-inner");
+    var el = document.createElement("div");
+    var inner = document.createElement("span");
+
+    var valClass = tile.value > 2048 ? "tile-super" : "tile-" + tile.value;
+    el.className = "tile " + valClass;
+    el.style.width = s.cell + "px";
+    el.style.height = s.cell + "px";
+
+    // Start at the "from" position — no transition active yet
+    var from = tile.previousPosition || { x: tile.x, y: tile.y };
+    var fromPos = this._pos(from.x, from.y);
+    el.style.left = fromPos.left + "px";
+    el.style.top = fromPos.top + "px";
+
+    inner.className = "tile-inner-text";
     inner.textContent = tile.value;
+    el.appendChild(inner);
+    this.tiles.appendChild(el);
 
-    wrapper.appendChild(inner);
-    this.tileContainer.appendChild(wrapper);
-};
+    // Force layout flush — browser locks in the "from" state before
+    // we enable the transition and change position.
+    void el.getBoundingClientRect();
 
-HTMLActuator.prototype.applyClasses = function (element, classes) {
-    element.setAttribute("class", classes.join(" "));
-};
+    if (isGhost) {
+        // Ghost: slide to merge destination AND fade to invisible simultaneously.
+        // The merged result tile pops in on top after the slide finishes (CSS delay).
+        el.classList.add("tile-ghost", "tile-moving");
+        el.style.opacity = "0";
+        var ghostTo = this._pos(tile.x, tile.y);
+        el.style.left = ghostTo.left + "px";
+        el.style.top = ghostTo.top + "px";
 
-HTMLActuator.prototype.updateScore = function (score) {
-    this.clearContainer(this.scoreContainer);
-    var difference = score - this.score;
-    this.score = score;
-    this.scoreContainer.textContent = this.score;
+    } else if (tile.previousPosition) {
+        // Normal slide — no merge
+        el.classList.add("tile-moving");
+        var toPos = this._pos(tile.x, tile.y);
+        el.style.left = toPos.left + "px";
+        el.style.top = toPos.top + "px";
 
-    if (difference > 0) {
-        var addition = document.createElement("div");
-        addition.classList.add("score-addition");
-        addition.textContent = "+" + difference;
-        this.scoreContainer.appendChild(addition);
-    }
-};
+    } else if (tile.mergedFrom) {
+        // Merged result — pop in after ghosts have slid away (CSS 0.12s delay)
+        el.classList.add("tile-merged");
 
-HTMLActuator.prototype.updateBestScore = function (bestScore) {
-    this.bestContainer.textContent = bestScore;
-};
-
-HTMLActuator.prototype.updateMoves = function (moves) {
-    if (this.movesContainer) {
-        this.movesContainer.textContent = moves || 0;
-    }
-};
-
-HTMLActuator.prototype.updateUndoButton = function (canUndo) {
-    if (this.undoButton) {
-        this.undoButton.disabled = !canUndo;
-    }
-};
-
-HTMLActuator.prototype.message = function (won) {
-    var type = won ? "game-won" : "game-over";
-    var message = won ? "You win!" : "Game over!";
-
-    this.messageContainer.classList.add(type);
-    this.messageContainer.getElementsByTagName("p")[0].textContent = message;
-};
-
-HTMLActuator.prototype.clearMessage = function () {
-    this.messageContainer.classList.remove("game-won");
-    this.messageContainer.classList.remove("game-over");
-};
-
-// Delete mode UI
-HTMLActuator.prototype.setDeleteMode = function (active) {
-    if (active) {
-        this.gameContainer.classList.add("delete-mode");
-        this.deleteBanner.style.display = "flex";
-        this.deleteButton.classList.add("active");
     } else {
-        this.gameContainer.classList.remove("delete-mode");
-        this.deleteBanner.style.display = "none";
-        this.deleteButton.classList.remove("active");
+        // Brand-new spawned tile
+        el.classList.add("tile-new");
     }
 };
 
-HTMLActuator.prototype.animateDeleteTile = function (element, callback) {
-    element.classList.add("tile-deleted");
-    element.addEventListener("animationend", function () {
-        if (callback) callback();
-    });
+// ---- Overlay -------------------------------------------------------------
+
+HTMLActuator.prototype._showMessage = function (text, type) {
+    this.msgText.textContent = text;
+    this.message.classList.add("active", type);
 };

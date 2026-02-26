@@ -16,6 +16,23 @@
 </head>
 
 <body>
+
+    <!-- ── space background (aria-hidden — purely decorative) ──────────── -->
+    <div class="space-canvas" aria-hidden="true">
+        <div class="stars-far"></div>
+        <div class="stars-near"></div>
+        <div class="black-hole">
+            <div class="bh-disk"></div>
+            <div class="bh-glow"></div>
+            <div class="bh-core"></div>
+            <div class="bh-orbit">
+                <div class="bh-satellite"></div>
+            </div>
+        </div>
+        <div class="nebula-left"></div>
+        <div class="nebula-right"></div>
+    </div>
+
     <main class="app">
         <header class="hero">
             <p class="eyebrow">Space Theme</p>
@@ -23,7 +40,20 @@
             <p class="subtitle">Merge the cosmos. Reach the core.</p>
         </header>
 
+        <section class="score-row" aria-label="Scoreboard">
+            <div class="score-card">
+                <span class="score-label">Score</span>
+                <span class="score-value">0</span>
+            </div>
+            <div class="score-card">
+                <span class="score-label">Best</span>
+                <span class="best-value">0</span>
+            </div>
+        </section>
+
         <section class="board-shell" aria-label="2048 grid">
+
+            <!-- empty cells (background layer) -->
             <div class="grid-container">
                 <div class="grid-cell"></div>
                 <div class="grid-cell"></div>
@@ -42,9 +72,29 @@
                 <div class="grid-cell"></div>
                 <div class="grid-cell"></div>
             </div>
+
+            <!-- tiles (top layer) -->
+            <div class="tile-container"></div>
+
+            <!-- game over / won overlay -->
+            <div class="game-message" aria-live="polite">
+                <p class="game-message-text"></p>
+                <button class="retry-button">Play Again</button>
+            </div>
+
         </section>
 
+        <button class="new-game-button">New Game</button>
+
     </main>
+
+    <script src="js/tile.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/storage_manager.js"></script>
+    <script src="js/input_manager.js"></script>
+    <script src="js/html_actuator.js"></script>
+    <script src="js/game_manager.js"></script>
+    <script src="js/application.js"></script>
 
     <script>
         console.log("i am tirumurgan and ive start creating 2048 game");
