@@ -121,7 +121,17 @@ HTMLActuator.prototype._drawTile = function (tile, isGhost) {
 
     } else if (tile.mergedFrom) {
         // Merged result — pop in after ghosts have slid away (CSS 0.12s delay)
-        el.classList.add("tile-merged");
+        el.classList.add("tile-merged", "sfx-shimmer");
+
+        // Fire space collision effect once the tile has painted at its position.
+        // The 170ms delay matches the slide (120ms) + pop-delay (12ms) + small buffer.
+        ; (function (capturedEl, capturedValue) {
+            setTimeout(function () {
+                if (typeof SpaceEffects !== "undefined") {
+                    SpaceEffects.trigger(capturedValue, capturedEl);
+                }
+            }, 170);
+        }(el, tile.value));
 
     } else {
         // Brand-new spawned tile
