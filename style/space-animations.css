@@ -23,7 +23,8 @@
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
   z-index: 9998;
-  animation: sfx-ring-expand linear forwards;
+  will-change: transform, opacity;
+  animation: sfx-ring-expand cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Tier colour variants */
@@ -66,13 +67,9 @@
     transform: translate(-50%, -50%) scale(0);
     opacity: 1;
   }
-  40% {
-    transform: translate(-50%, -50%) scale(0.72);
+  25% {
+    transform: translate(-50%, -50%) scale(0.5);
     opacity: 1;
-  }
-  65% {
-    transform: translate(-50%, -50%) scale(0.68);
-    opacity: 0.95;
   }
   100% {
     transform: translate(-50%, -50%) scale(1);
@@ -89,7 +86,8 @@
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
   z-index: 9997;
-  animation: sfx-flash-burst 0.35s ease-out forwards;
+  will-change: transform, opacity;
+  animation: sfx-flash-burst 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .sfx-flash.t2 {
@@ -173,26 +171,14 @@
 @keyframes sfx-flash-burst {
   0% {
     transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-  }
-  8% {
-    transform: translate(-50%, -50%) scale(0.5);
     opacity: 1;
   }
-  22% {
+  35% {
     transform: translate(-50%, -50%) scale(1);
-    opacity: 0.95;
-  }
-  38% {
-    transform: translate(-50%, -50%) scale(0.82);
-    opacity: 0.7;
-  }
-  55% {
-    transform: translate(-50%, -50%) scale(1.3);
-    opacity: 0.5;
+    opacity: 0.85;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1.9);
+    transform: translate(-50%, -50%) scale(1.8);
     opacity: 0;
   }
 }
@@ -342,8 +328,8 @@
 /* Tier 1 — 2: soft stellar blink */
 .tile-2.tile-merged {
   animation:
-    tile-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-2 0.55s ease-out 0.12s both;
+    tile-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-2 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-2 {
   0% {
@@ -360,8 +346,8 @@
 /* Tier 2 — 4: violet twinkle */
 .tile-4.tile-merged {
   animation:
-    tile-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-4 0.6s ease-out 0.12s both;
+    tile-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-4 0.39s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-4 {
   0% {
@@ -378,8 +364,8 @@
 /* Tier 3 — 8: cyan flare */
 .tile-8.tile-merged {
   animation:
-    tile-pop-strong 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-8 0.7s ease-out 0.12s both;
+    tile-pop-strong 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-8 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-8 {
   0% {
@@ -396,8 +382,8 @@
 /* Tier 4 — 16: teal nova */
 .tile-16.tile-merged {
   animation:
-    tile-pop-strong 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-16 0.75s ease-out 0.12s both;
+    tile-pop-strong 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-16 0.49s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-16 {
   0% {
@@ -414,8 +400,8 @@
 /* Tier 5 — 32: emerald burst */
 .tile-32.tile-merged {
   animation:
-    tile-pop-strong 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-32 0.8s ease-out 0.12s both;
+    tile-pop-strong 0.19s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-32 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-32 {
   0% {
@@ -432,8 +418,8 @@
 /* Tier 6 — 64: golden flare */
 .tile-64.tile-merged {
   animation:
-    tile-pop-flare 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-64 0.85s ease-out 0.12s both;
+    tile-pop-flare 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-64 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-64 {
   0% {
@@ -450,8 +436,8 @@
 /* Tier 7 — 128: supergiant burst */
 .tile-128.tile-merged {
   animation:
-    tile-pop-flare 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-128 0.9s ease-out 0.12s both;
+    tile-pop-flare 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-128 0.58s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-128 {
   0% {
@@ -471,8 +457,8 @@
 /* Tier 8 — 256: red dwarf eruption */
 .tile-256.tile-merged {
   animation:
-    tile-pop-supernova 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-256 1s ease-out 0.12s both;
+    tile-pop-supernova 0.21s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-256 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-256 {
   0% {
@@ -500,8 +486,8 @@
 /* Tier 9 — 512: purple supernova */
 .tile-512.tile-merged {
   animation:
-    tile-pop-supernova 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-512 1.2s ease-out 0.12s both;
+    tile-pop-supernova 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-512 0.78s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 @keyframes sfx-glow-512 {
   0% {
@@ -535,9 +521,9 @@
 /* Tier 10 — 1024: quasar implosion */
 .tile-1024.tile-merged {
   animation:
-    tile-pop-supernova 0.36s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-1024 1.5s ease-out 0.12s both,
-    sfx-corona-1024 1.8s ease-out 0.14s both;
+    tile-pop-supernova 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-1024 0.97s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both,
+    sfx-corona-1024 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-1024 {
   0% {
@@ -593,10 +579,10 @@
 /* Tier 11 — 2048: cosmic core */
 .tile-2048.tile-merged {
   animation:
-    tile-pop-cosmic 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-2048 1.8s ease-out 0.12s both,
-    sfx-corona-2048 2.2s ease-out 0.14s both,
-    sfx-shimmer-2048 2.8s ease-in-out 0.55s infinite;
+    tile-pop-cosmic 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-2048 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both,
+    sfx-corona-2048 1.43s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both,
+    sfx-shimmer-2048 1.82s ease-in-out 0.4s infinite;
 }
 @keyframes sfx-glow-2048 {
   0% {
@@ -653,21 +639,191 @@
 @keyframes sfx-shimmer-2048 {
   0%,
   100% {
-    filter: brightness(1) saturate(1) hue-rotate(0deg);
+    filter: brightness(1) saturate(1);
   }
-  33% {
-    filter: brightness(1.4) saturate(1.5) hue-rotate(8deg);
-  }
-  66% {
-    filter: brightness(1.2) saturate(1.3) hue-rotate(-6deg);
+  50% {
+    filter: brightness(1.25) saturate(1.3);
   }
 }
 
 /* Super tile shimmer */
 .tile-super.tile-merged {
   animation:
-    tile-pop-cosmic 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both,
-    sfx-glow-super 1.6s ease-out 0.12s both;
+    tile-pop-cosmic 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
+    sfx-glow-super 1.04s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   UNDO / COSMIC FISSION — tiles restore via a split-energy effect
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Per-tile fission materialise animation */
+.tile-undo-split {
+  opacity: 0;
+  animation:
+    tile-fission-appear 0.52s cubic-bezier(0.16, 1, 0.3, 1) both,
+    sfx-fission-glow 0.65s ease-out both;
+}
+
+@keyframes tile-fission-appear {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+    filter: brightness(3) saturate(0) hue-rotate(180deg);
+  }
+  20% {
+    transform: scale(1.12);
+    opacity: 0.85;
+    filter: brightness(1.9) saturate(0.5) hue-rotate(60deg);
+  }
+  48% {
+    transform: scale(0.96);
+    opacity: 1;
+    filter: brightness(1.18) saturate(0.95) hue-rotate(10deg);
+  }
+  72% {
+    transform: scale(1.02);
+    filter: brightness(1.05) saturate(1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: brightness(1) saturate(1) hue-rotate(0deg);
+  }
+}
+
+@keyframes sfx-fission-glow {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(100, 210, 255, 0),
+      inset 0 0 0 0 rgba(100, 210, 255, 0);
+  }
+  18% {
+    box-shadow:
+      0 0 16px 6px rgba(100, 210, 255, 0.75),
+      0 0 32px 12px rgba(60, 160, 255, 0.28),
+      inset 0 0 8px 2px rgba(120, 220, 255, 0.25);
+  }
+  55% {
+    box-shadow:
+      0 0 7px 2px rgba(100, 210, 255, 0.3),
+      inset 0 0 3px 1px rgba(120, 220, 255, 0.08);
+  }
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(100, 210, 255, 0),
+      inset 0 0 0 0 rgba(100, 210, 255, 0);
+  }
+}
+
+/* ── Contracting undo ring (reverse of merge expand ring) ─────────────── */
+.sfx-undo-ring {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  border: 2px solid rgba(100, 210, 255, 0.92);
+  transform: translate(-50%, -50%) scale(1.8);
+  animation: sfx-undo-ring-contract 0.5s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+.sfx-undo-ring.inner {
+  border-color: rgba(160, 240, 255, 0.7);
+  border-width: 1.5px;
+}
+
+.sfx-undo-ring.outer {
+  border-color: rgba(60, 140, 255, 0.55);
+  border-width: 1px;
+}
+
+@keyframes sfx-undo-ring-contract {
+  0% {
+    transform: translate(-50%, -50%) scale(1.9);
+    opacity: 0.8;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  55% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.7;
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ── Time-rewind board overlay ────────────────────────────────────────── */
+.sfx-undo-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9994;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    rgba(40, 130, 255, 0.13) 0%,
+    rgba(20, 80, 200, 0.07) 50%,
+    transparent 72%
+  );
+  animation: sfx-undo-overlay-fade 0.65s ease-out forwards;
+}
+
+@keyframes sfx-undo-overlay-fade {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ── Undo fission flash (tile-sized burst at board center) ────────────── */
+.sfx-undo-flash {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9997;
+  background: radial-gradient(
+    circle,
+    rgba(140, 220, 255, 0.7) 0%,
+    rgba(80, 170, 255, 0.35) 40%,
+    transparent 72%
+  );
+  transform: translate(-50%, -50%) scale(0);
+  animation: sfx-undo-flash-burst 0.4s ease-out forwards;
+}
+
+@keyframes sfx-undo-flash-burst {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 1;
+  }
+  35% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.85;
+  }
+  65% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.2);
+    opacity: 0;
+  }
 }
 @keyframes sfx-glow-super {
   0% {
@@ -691,10 +847,7 @@
 /* Base — already in main.css, redeclared here for extended tiers */
 @keyframes tile-pop {
   0% {
-    transform: scale(0.8);
-  }
-  55% {
-    transform: scale(1.22);
+    transform: scale(0.82);
   }
   100% {
     transform: scale(1);
@@ -703,13 +856,7 @@
 
 @keyframes tile-pop-strong {
   0% {
-    transform: scale(0.7);
-  }
-  50% {
-    transform: scale(1.28);
-  }
-  75% {
-    transform: scale(0.96);
+    transform: scale(0.72);
   }
   100% {
     transform: scale(1);
@@ -718,13 +865,7 @@
 
 @keyframes tile-pop-flare {
   0% {
-    transform: scale(0.65);
-  }
-  45% {
-    transform: scale(1.35);
-  }
-  70% {
-    transform: scale(0.94);
+    transform: scale(0.62);
   }
   100% {
     transform: scale(1);
@@ -733,49 +874,21 @@
 
 @keyframes tile-pop-supernova {
   0% {
-    transform: scale(0.45) rotate(-6deg);
-  }
-  35% {
-    transform: scale(1.52) rotate(3deg);
-  }
-  55% {
-    transform: scale(0.88) rotate(-1.5deg);
-  }
-  72% {
-    transform: scale(1.12) rotate(0.8deg);
-  }
-  88% {
-    transform: scale(0.97) rotate(-0.3deg);
+    transform: scale(0.5);
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
   }
 }
 
 @keyframes tile-pop-cosmic {
   0% {
-    transform: scale(0.3) rotate(-8deg);
-    filter: brightness(4) saturate(2);
-  }
-  28% {
-    transform: scale(1.65) rotate(4deg);
-    filter: brightness(2.5) saturate(1.8);
-  }
-  50% {
-    transform: scale(0.85) rotate(-2deg);
-    filter: brightness(1.6) saturate(1.4);
-  }
-  68% {
-    transform: scale(1.14) rotate(1deg);
-    filter: brightness(1.25);
-  }
-  82% {
-    transform: scale(0.96) rotate(-0.5deg);
-    filter: brightness(1.1);
+    transform: scale(0.35);
+    filter: brightness(3) saturate(1.5);
   }
   100% {
-    transform: scale(1) rotate(0deg);
-    filter: brightness(1);
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
   }
 }
 
@@ -788,7 +901,9 @@
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
   z-index: 9996;
-  animation: sfx-nebula-puff 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  animation: sfx-nebula-puff 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .sfx-nebula.t128 {
@@ -835,18 +950,14 @@
 @keyframes sfx-nebula-puff {
   0% {
     transform: translate(-50%, -50%) scale(0);
-    opacity: 1;
+    opacity: 0.9;
   }
-  30% {
-    transform: translate(-50%, -50%) scale(0.75);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.8;
+  45% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.65;
   }
   100% {
-    transform: translate(-50%, -50%) scale(2.8);
+    transform: translate(-50%, -50%) scale(2);
     opacity: 0;
   }
 }

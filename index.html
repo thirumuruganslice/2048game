@@ -77,6 +77,9 @@
             <!-- tiles (top layer) -->
             <div class="tile-container"></div>
 
+            <!-- swap mode hint banner -->
+            <div class="swap-hint" aria-live="polite"></div>
+
             <!-- game over / won overlay -->
             <div class="game-message" aria-live="polite">
                 <p class="game-message-text"></p>
@@ -85,10 +88,22 @@
 
         </section>
 
-        <button class="new-game-button">New Game</button>
+        <div class="controls-row">
+            <button class="undo-button" title="Undo last move">
+                ↩ Undo <span class="undo-count">2</span>
+            </button>
+            <button class="exchange-button" title="Exchange two tiles (X)">
+                ⇄ Swap <span class="exchange-count">2</span>
+            </button>
+            <button class="new-game-button">New Game</button>
+            <button class="mute-button" title="Toggle sound" aria-label="Toggle sound" aria-pressed="false">
+                <span class="mute-icon">🔊</span>
+            </button>
+        </div>
 
     </main>
 
+    <script src="js/sound_manager.js"></script>
     <script src="js/space-effects.js"></script>
     <script src="js/tile.js"></script>
     <script src="js/grid.js"></script>
@@ -100,6 +115,19 @@
 
     <script>
         console.log("i am tirumurgan and ive start creating 2048 game");
+
+        // ── Mute button wiring ──────────────────────────────────────────────
+        (function () {
+            var btn = document.querySelector(".mute-button");
+            var icon = btn && btn.querySelector(".mute-icon");
+            if (!btn) return;
+            btn.addEventListener("click", function () {
+                var muted = SoundManager.toggleMute();
+                btn.setAttribute("aria-pressed", muted ? "true" : "false");
+                if (icon) icon.textContent = muted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
+                btn.title = muted ? "Sound off — click to unmute" : "Sound on — click to mute";
+            });
+        }());
     </script>
 </body>
 

@@ -56,6 +56,44 @@ InputManager.prototype.listen = function () {
         });
     });
 
+    var undoBtn = document.querySelector(".undo-button");
+    if (undoBtn) undoBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        self.emit("undo");
+    });
+
+    var exchangeBtn = document.querySelector(".exchange-button");
+    if (exchangeBtn) exchangeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        self.emit("exchangeToggle");
+    });
+
+    // Delegated tile click — used by exchange mode to pick tiles
+    var tileContainer = document.querySelector(".tile-container");
+    if (tileContainer) tileContainer.addEventListener("click", function (e) {
+        var el = e.target;
+        while (el && el !== tileContainer) {
+            if (el.classList && el.classList.contains("tile")) {
+                var gx = parseInt(el.getAttribute("data-gx"), 10);
+                var gy = parseInt(el.getAttribute("data-gy"), 10);
+                if (!isNaN(gx) && !isNaN(gy)) self.emit("tileClick", { x: gx, y: gy });
+                return;
+            }
+            el = el.parentElement;
+        }
+    });
+
+    // Keyboard shortcut: Ctrl+Z or Z for undo | X for exchange toggle
+    document.addEventListener("keydown", function (e) {
+        if (e.altKey || e.metaKey) return;
+        if (e.key === "z" || e.key === "Z") {
+            if (!e.ctrlKey) { e.preventDefault(); self.emit("undo"); }
+        }
+        if (e.key === "x" || e.key === "X") {
+            e.preventDefault(); self.emit("exchangeToggle");
+        }
+    });
+
     // ---- Touch swipe ----------------------------------------------------
     var board = document.querySelector(".board-shell");
     if (!board) return;

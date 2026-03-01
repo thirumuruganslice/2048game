@@ -41,7 +41,7 @@ var SpaceEffects = (function () {
     */
     var TIERS = {
         2: {
-            count: 14, spread: 36, speed: 1.3, life: 48,
+            count: 14, spread: 36, speed: 1.3, life: 40,
             radii: [1.4, 2.8],
             colors: ["#c8d8ff", "#aabeff", "#e8f0ff", "#ffffff", "#8898cc"],
             shapes: ["sparkle"],
@@ -49,85 +49,85 @@ var SpaceEffects = (function () {
             nebula: false, shake: null, flashSize: 90
         },
         4: {
-            count: 22, spread: 44, speed: 1.6, life: 54,
+            count: 22, spread: 44, speed: 1.6, life: 46,
             radii: [1.8, 3.4],
             colors: ["#c0a8ff", "#a080ff", "#dcc8ff", "#ffffff", "#7050d0"],
             shapes: ["sparkle", "circle"],
-            rings: 1, ringDur: 460, ringMaxPx: 100,
+            rings: 1, ringDur: 300, ringMaxPx: 100,
             nebula: false, shake: null, flashSize: 110
         },
         8: {
-            count: 34, spread: 58, speed: 2.0, life: 60,
+            count: 34, spread: 58, speed: 2.0, life: 51,
             radii: [2.0, 3.8],
             colors: ["#40c8ff", "#20a8ff", "#80e0ff", "#ffffff", "#0090e0"],
             shapes: ["sparkle", "circle", "streak"],
-            rings: 1, ringDur: 480, ringMaxPx: 130,
+            rings: 1, ringDur: 310, ringMaxPx: 130,
             nebula: false, shake: null, flashSize: 130
         },
         16: {
-            count: 44, spread: 70, speed: 2.4, life: 66,
+            count: 44, spread: 70, speed: 2.4, life: 56,
             radii: [2.2, 4.2],
             colors: ["#30e8c8", "#20c0a0", "#70f0d8", "#ffffff", "#008870"],
             shapes: ["sparkle", "circle", "streak"],
-            rings: 1, ringDur: 500, ringMaxPx: 150,
+            rings: 1, ringDur: 325, ringMaxPx: 150,
             nebula: false, shake: null, flashSize: 155
         },
         32: {
-            count: 58, spread: 86, speed: 2.8, life: 72,
+            count: 58, spread: 86, speed: 2.8, life: 61,
             radii: [2.5, 4.8],
             colors: ["#50f08a", "#30c868", "#80ff9a", "#ffffff", "#008840"],
             shapes: ["circle", "streak", "star4", "sparkle"],
-            rings: 2, ringDur: 520, ringMaxPx: 175,
+            rings: 2, ringDur: 340, ringMaxPx: 175,
             nebula: false, shake: null, flashSize: 185
         },
         64: {
-            count: 76, spread: 105, speed: 3.2, life: 78,
+            count: 76, spread: 105, speed: 3.2, life: 66,
             radii: [2.8, 5.5],
             colors: ["#ffc830", "#ff9000", "#ffe880", "#ffffff", "#cc6000"],
             shapes: ["circle", "star4", "streak", "sparkle"],
-            rings: 2, ringDur: 540, ringMaxPx: 205,
+            rings: 2, ringDur: 350, ringMaxPx: 205,
             nebula: false, shake: null, flashSize: 215
         },
         128: {
-            count: 100, spread: 128, speed: 3.7, life: 84,
+            count: 100, spread: 128, speed: 3.7, life: 71,
             radii: [3.0, 6.2],
             colors: ["#ff8820", "#ff5000", "#ffc080", "#ffffff", "#cc3000", "#ff7040"],
             shapes: ["circle", "star4", "streak", "nova"],
-            rings: 3, ringDur: 560, ringMaxPx: 240,
+            rings: 3, ringDur: 365, ringMaxPx: 240,
             nebula: true, shake: null, flashSize: 260
         },
         256: {
-            count: 130, spread: 152, speed: 4.1, life: 90,
+            count: 130, spread: 152, speed: 4.1, life: 77,
             radii: [3.3, 7.0],
             colors: ["#ff4020", "#ff1800", "#ff8060", "#ffffff", "#cc0000", "#ff3050"],
             shapes: ["circle", "star4", "star6", "streak", "nova"],
-            rings: 3, ringDur: 580, ringMaxPx: 275,
+            rings: 3, ringDur: 380, ringMaxPx: 275,
             nebula: true, shake: null, flashSize: 295
         },
         512: {
-            count: 165, spread: 180, speed: 4.7, life: 96,
+            count: 165, spread: 180, speed: 4.7, life: 82,
             radii: [3.6, 8.0],
             colors: ["#e030e0", "#a010c0", "#f080f0", "#ffffff", "#800090", "#cc40ff"],
             shapes: ["circle", "star4", "star6", "streak", "nova", "lightning"],
-            rings: 3, ringDur: 600, ringMaxPx: 315,
+            rings: 3, ringDur: 390, ringMaxPx: 315,
             nebula: true, shake: "sfx-shake", flashSize: 340,
             screenFlash: false, doubleBurst: true
         },
         1024: {
-            count: 220, spread: 220, speed: 5.5, life: 108,
+            count: 220, spread: 220, speed: 5.5, life: 92,
             radii: [4.0, 9.5],
             colors: ["#60e0ff", "#20beff", "#ffffff", "#aaffff", "#0090d0", "#a0f0ff"],
             shapes: ["circle", "star4", "star6", "streak", "comet", "nova", "lightning"],
-            rings: 4, ringDur: 640, ringMaxPx: 390,
+            rings: 4, ringDur: 415, ringMaxPx: 390,
             nebula: true, shake: "sfx-shake-heavy", flashSize: 415,
             screenFlash: true, doubleBurst: true
         },
         2048: {
-            count: 300, spread: 265, speed: 6.8, life: 122,
+            count: 300, spread: 265, speed: 6.8, life: 104,
             radii: [5.0, 12.0],
             colors: ["#ffe040", "#ffffff", "#ffaa00", "#ffff80", "#ff8800", "#fffac8", "#fff0a0"],
             shapes: ["circle", "star4", "star6", "streak", "comet", "nova", "lightning"],
-            rings: 5, ringDur: 700, ringMaxPx: 480,
+            rings: 5, ringDur: 455, ringMaxPx: 480,
             nebula: true, shake: "sfx-shake-cosmic", flashSize: 510,
             screenFlash: true, doubleBurst: true, multiNebula: true
         }
@@ -693,8 +693,160 @@ var SpaceEffects = (function () {
         }
     }
 
+    /**
+     * triggerSplit(boardElement)
+     * ──────────────────────────
+     * Cosmic fission effect fired when the player undoes a move.
+     * Particles radiate outward from the board centre in two opposing
+     * "ion-stream" clusters (like a nucleus splitting), plus contracting
+     * shockwave rings and a full-viewport time-rewind overlay.
+     */
+    function triggerSplit(boardElement) {
+        if (!canvas || !ctx) initCanvas();
+
+        /* board centre in viewport coords */
+        var rect = boardElement.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top + rect.height / 2;
+        var boardR = Math.min(rect.width, rect.height) * 0.46;
+
+        /* ── full-screen rewind tint ──────────────────────── */
+        var overlay = document.createElement("div");
+        overlay.className = "sfx-undo-overlay";
+        document.body.appendChild(overlay);
+        overlay.addEventListener("animationend", function () {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        });
+
+        /* ── central fission flash ────────────────────────── */
+        var flash = document.createElement("div");
+        flash.className = "sfx-undo-flash";
+        flash.style.cssText = "left:" + cx + "px;top:" + cy + "px;" +
+            "width:" + (boardR * 1.6) + "px;height:" + (boardR * 1.6) + "px;";
+        document.body.appendChild(flash);
+        flash.addEventListener("animationend", function () {
+            if (flash.parentNode) flash.parentNode.removeChild(flash);
+        });
+
+        /* ── three contracting rings (inner → outer, staggered) ── */
+        var ringData = [
+            { cls: "sfx-undo-ring inner", diam: boardR * 0.9, delay: 0 },
+            { cls: "sfx-undo-ring", diam: boardR * 1.5, delay: 55 },
+            { cls: "sfx-undo-ring outer", diam: boardR * 2.1, delay: 115 }
+        ];
+        ringData.forEach(function (rd) {
+            setTimeout(function () {
+                var ring = document.createElement("div");
+                ring.className = rd.cls;
+                ring.style.cssText = "left:" + cx + "px;top:" + cy + "px;" +
+                    "width:" + rd.diam + "px;height:" + rd.diam + "px;";
+                document.body.appendChild(ring);
+                ring.addEventListener("animationend", function () {
+                    if (ring.parentNode) ring.parentNode.removeChild(ring);
+                });
+            }, rd.delay);
+        });
+
+        /* ── fission particle streams ─────────────────────── */
+        /*
+           Two opposing ion-stream clusters flying apart (like nuclear fission),
+           plus a scattered halo of sparkles and streaks around the full ring.
+        */
+        var FISSION_COLORS = [
+            "#a0e8ff", "#60d0ff", "#ffffff", "#c0f0ff",
+            "#40b8e0", "#e8f8ff", "#80c8f0", "#20a0d8"
+        ];
+
+        /* Cluster A — bursts toward upper-left quadrant */
+        var clusterAngle = Math.random() * Math.PI * 2;   /* random axis */
+        for (var a = 0; a < 70; a++) {
+            var spread = (Math.random() - 0.5) * 0.9;    /* ±52° fan */
+            var angle = clusterAngle + spread;
+            var spd = 2.8 + Math.random() * 3.8;
+            var shp = ["sparkle", "streak", "star4", "comet"][Math.floor(Math.random() * 4)];
+            particles.push({
+                x: cx + (Math.random() - 0.5) * 10,
+                y: cy + (Math.random() - 0.5) * 10,
+                vx: Math.cos(angle) * spd,
+                vy: Math.sin(angle) * spd,
+                ax: 0, ay: 0,
+                life: 50 + Math.random() * 40,
+                maxLife: 90,
+                size: 1.8 + Math.random() * 3.2,
+                color: FISSION_COLORS[Math.floor(Math.random() * FISSION_COLORS.length)],
+                shape: shp,
+                glowR: 4 + Math.random() * 6,
+                trail: shp === "comet" ? [] : null,
+                points: shp === "star4" ? 4 : (shp === "star6" ? 6 : 0),
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.18,
+                twinkle: shp === "sparkle" ? 0.06 + Math.random() * 0.06 : 0,
+                twinkleP: Math.random() * Math.PI * 2,
+                decel: 0.94 + Math.random() * 0.04
+            });
+        }
+
+        /* Cluster B — opposite direction */
+        var oppAngle = clusterAngle + Math.PI;
+        for (var b = 0; b < 70; b++) {
+            var spread2 = (Math.random() - 0.5) * 0.9;
+            var angle2 = oppAngle + spread2;
+            var spd2 = 2.8 + Math.random() * 3.8;
+            var shp2 = ["sparkle", "streak", "star4", "nova"][Math.floor(Math.random() * 4)];
+            particles.push({
+                x: cx + (Math.random() - 0.5) * 10,
+                y: cy + (Math.random() - 0.5) * 10,
+                vx: Math.cos(angle2) * spd2,
+                vy: Math.sin(angle2) * spd2,
+                ax: 0, ay: 0,
+                life: 50 + Math.random() * 40,
+                maxLife: 90,
+                size: 1.8 + Math.random() * 3.2,
+                color: FISSION_COLORS[Math.floor(Math.random() * FISSION_COLORS.length)],
+                shape: shp2,
+                glowR: 4 + Math.random() * 6,
+                trail: shp2 === "comet" ? [] : null,
+                points: shp2 === "star4" ? 4 : (shp2 === "star6" ? 6 : 0),
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.18,
+                twinkle: shp2 === "sparkle" ? 0.06 + Math.random() * 0.06 : 0,
+                twinkleP: Math.random() * Math.PI * 2,
+                decel: 0.94 + Math.random() * 0.04
+            });
+        }
+
+        /* Scattered halo — 360° sparkle ring */
+        for (var h = 0; h < 40; h++) {
+            var ha = Math.random() * Math.PI * 2;
+            var hr = boardR * (0.2 + Math.random() * 0.4);
+            var hspd = 1.2 + Math.random() * 1.8;
+            particles.push({
+                x: cx + Math.cos(ha) * hr * 0.15,
+                y: cy + Math.sin(ha) * hr * 0.15,
+                vx: Math.cos(ha) * hspd,
+                vy: Math.sin(ha) * hspd,
+                ax: 0, ay: 0,
+                life: 35 + Math.random() * 30,
+                maxLife: 65,
+                size: 1.2 + Math.random() * 2.0,
+                color: FISSION_COLORS[Math.floor(Math.random() * FISSION_COLORS.length)],
+                shape: "sparkle",
+                glowR: 3 + Math.random() * 4,
+                trail: null,
+                points: 0,
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.14,
+                twinkle: 0.05 + Math.random() * 0.07,
+                twinkleP: Math.random() * Math.PI * 2,
+                decel: 0.95 + Math.random() * 0.03
+            });
+        }
+
+        startLoop();
+    }
+
     /* expose */
-    return { init: init, trigger: trigger };
+    return { init: init, trigger: trigger, triggerSplit: triggerSplit };
 
 }());
 
