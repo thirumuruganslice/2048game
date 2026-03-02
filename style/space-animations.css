@@ -1022,3 +1022,132 @@
     filter: brightness(1) saturate(1);
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Black-hole tile suck — tile removal gravitational collapse animation
+   700ms arc matching JS setTimeout in game_manager.removeToggle handler.
+
+   3-stage:
+   1. Gravity-grab (0–15%): slight pulsing enlarge + red hue spike → "lock-on"
+   2. Orbital decay (15–72%): accelerating corkscrew spin + shrink toward zero
+   3. Singularity (72–100%): final snap-collapse into nothing, brief red flash
+   ────────────────────────────────────────────────────────────────────────── */
+
+.tile-bh-suck {
+  /* linear so every keyframe percent = exact real-time ms */
+  animation: tile-bh-suck 700ms linear forwards;
+  z-index: 20 !important;
+  overflow: visible;
+}
+
+/* Event-horizon ring: drifts outward slowly during linger, then implodes */
+.tile-bh-suck::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.90) 0%,
+    rgba(255, 70, 10, 0.70)  22%,
+    rgba(160, 0,  0,  0.40)  48%,
+    rgba(60,  0,  30, 0.14)  70%,
+    transparent 88%
+  );
+  pointer-events: none;
+  animation: bh-event-horizon-ring 700ms linear both;
+  z-index: 21;
+}
+
+@keyframes bh-event-horizon-ring {
+  0%   { inset: 50%;   opacity: 0;    }
+  4%   { inset: -14px; opacity: 0.88; }
+  20%  { inset: -22px; opacity: 0.78; }
+  40%  { inset: -30px; opacity: 0.68; }
+  58%  { inset: -34px; opacity: 0.58; }
+  70%  { inset: -20px; opacity: 0.44; }
+  82%  { inset: -4px;  opacity: 0.25; }
+  92%  { inset: 35%;   opacity: 0.10; }
+  100% { inset: 50%;   opacity: 0;    }
+}
+
+@keyframes tile-bh-suck {
+  /* Phase 1: Gravitational linger (0-60% = 0-420ms) */
+  0% {
+    transform: scale(1.00) rotate(  0deg);
+    opacity: 1;
+    filter: brightness(1.00) saturate(1.00);
+  }
+  7% {
+    transform: scale(1.04) rotate(  3deg);
+    opacity: 1;
+    filter: brightness(1.22) saturate(1.15) hue-rotate(342deg);
+  }
+  14% {
+    transform: scale(0.98) rotate(  8deg);
+    opacity: 1;
+    filter: brightness(1.10) saturate(1.08) hue-rotate(346deg);
+  }
+  22% {
+    transform: scale(1.01) rotate( 14deg);
+    opacity: 1;
+    filter: brightness(1.14) saturate(1.06) hue-rotate(350deg);
+  }
+  30% {
+    transform: scale(0.96) rotate( 20deg);
+    opacity: 0.98;
+    filter: brightness(1.02) saturate(0.98) hue-rotate(4deg);
+  }
+  38% {
+    transform: scale(0.93) rotate( 27deg);
+    opacity: 0.96;
+    filter: brightness(0.92) saturate(0.92) hue-rotate(10deg);
+  }
+  46% {
+    transform: scale(0.90) rotate( 35deg);
+    opacity: 0.94;
+    filter: brightness(0.84) saturate(0.85) hue-rotate(16deg);
+  }
+  54% {
+    transform: scale(0.87) rotate( 43deg);
+    opacity: 0.92;
+    filter: brightness(0.76) saturate(0.78) hue-rotate(22deg);
+  }
+  60% {
+    transform: scale(0.84) rotate( 50deg);
+    opacity: 0.90;
+    filter: brightness(0.68) saturate(0.70) hue-rotate(28deg);
+  }
+  /* Phase 2: Acceleration onset (60-72% = 420-504ms) */
+  66% {
+    transform: scale(0.66) rotate(108deg);
+    opacity: 0.80;
+    filter: brightness(0.46) saturate(0.50) hue-rotate(52deg);
+  }
+  72% {
+    transform: scale(0.44) rotate(192deg);
+    opacity: 0.66;
+    filter: brightness(0.28) saturate(0.30) hue-rotate(82deg);
+  }
+  /* Phase 3: SWALLOW (72-100% = 504-700ms) */
+  80% {
+    transform: scale(0.20) rotate(330deg);
+    opacity: 0.42;
+    filter: brightness(0.12) saturate(0.14) hue-rotate(126deg);
+  }
+  88% {
+    transform: scale(0.06) rotate(478deg);
+    opacity: 0.18;
+    filter: brightness(0.04) saturate(0.04) hue-rotate(162deg);
+  }
+  95% {
+    transform: scale(0.01) rotate(560deg);
+    opacity: 0.05;
+    filter: brightness(0.01) saturate(0);
+  }
+  100% {
+    transform: scale(0)    rotate(590deg);
+    opacity: 0;
+    filter: brightness(0)  saturate(0);
+  }
+}

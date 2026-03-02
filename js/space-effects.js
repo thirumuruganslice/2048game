@@ -21,6 +21,7 @@ var SpaceEffects = (function () {
     var rafId = null;
     var isRunning = false;
     var boardShell = null;
+    var MAX_PARTICLES = 200; /* hard cap — prevents pile-up on rapid merges */
 
     /* ── tier configurations ─────────────────────────────── */
     /*
@@ -41,93 +42,93 @@ var SpaceEffects = (function () {
     */
     var TIERS = {
         2: {
-            count: 14, spread: 36, speed: 1.3, life: 40,
-            radii: [1.4, 2.8],
+            count: 10, spread: 36, speed: 1.5, life: 30,
+            radii: [1.4, 2.6],
             colors: ["#c8d8ff", "#aabeff", "#e8f0ff", "#ffffff", "#8898cc"],
             shapes: ["sparkle"],
             rings: 0, ringDur: 0, ringMaxPx: 0,
             nebula: false, shake: null, flashSize: 90
         },
         4: {
-            count: 22, spread: 44, speed: 1.6, life: 46,
-            radii: [1.8, 3.4],
+            count: 16, spread: 44, speed: 1.8, life: 34,
+            radii: [1.6, 3.0],
             colors: ["#c0a8ff", "#a080ff", "#dcc8ff", "#ffffff", "#7050d0"],
             shapes: ["sparkle", "circle"],
-            rings: 1, ringDur: 300, ringMaxPx: 100,
+            rings: 1, ringDur: 280, ringMaxPx: 100,
             nebula: false, shake: null, flashSize: 110
         },
         8: {
-            count: 34, spread: 58, speed: 2.0, life: 51,
-            radii: [2.0, 3.8],
+            count: 24, spread: 58, speed: 2.2, life: 37,
+            radii: [1.8, 3.4],
             colors: ["#40c8ff", "#20a8ff", "#80e0ff", "#ffffff", "#0090e0"],
             shapes: ["sparkle", "circle", "streak"],
-            rings: 1, ringDur: 310, ringMaxPx: 130,
+            rings: 1, ringDur: 290, ringMaxPx: 130,
             nebula: false, shake: null, flashSize: 130
         },
         16: {
-            count: 44, spread: 70, speed: 2.4, life: 56,
-            radii: [2.2, 4.2],
+            count: 30, spread: 70, speed: 2.6, life: 40,
+            radii: [2.0, 3.8],
             colors: ["#30e8c8", "#20c0a0", "#70f0d8", "#ffffff", "#008870"],
             shapes: ["sparkle", "circle", "streak"],
-            rings: 1, ringDur: 325, ringMaxPx: 150,
+            rings: 1, ringDur: 305, ringMaxPx: 150,
             nebula: false, shake: null, flashSize: 155
         },
         32: {
-            count: 58, spread: 86, speed: 2.8, life: 61,
-            radii: [2.5, 4.8],
+            count: 38, spread: 86, speed: 3.0, life: 42,
+            radii: [2.2, 4.2],
             colors: ["#50f08a", "#30c868", "#80ff9a", "#ffffff", "#008840"],
-            shapes: ["circle", "streak", "star4", "sparkle"],
-            rings: 2, ringDur: 340, ringMaxPx: 175,
+            shapes: ["circle", "streak", "sparkle"],
+            rings: 2, ringDur: 320, ringMaxPx: 175,
             nebula: false, shake: null, flashSize: 185
         },
         64: {
-            count: 76, spread: 105, speed: 3.2, life: 66,
-            radii: [2.8, 5.5],
+            count: 46, spread: 105, speed: 3.5, life: 44,
+            radii: [2.4, 4.8],
             colors: ["#ffc830", "#ff9000", "#ffe880", "#ffffff", "#cc6000"],
             shapes: ["circle", "star4", "streak", "sparkle"],
-            rings: 2, ringDur: 350, ringMaxPx: 205,
+            rings: 2, ringDur: 330, ringMaxPx: 205,
             nebula: false, shake: null, flashSize: 215
         },
         128: {
-            count: 100, spread: 128, speed: 3.7, life: 71,
-            radii: [3.0, 6.2],
+            count: 54, spread: 128, speed: 4.2, life: 46,
+            radii: [2.6, 5.4],
             colors: ["#ff8820", "#ff5000", "#ffc080", "#ffffff", "#cc3000", "#ff7040"],
-            shapes: ["circle", "star4", "streak", "nova"],
-            rings: 3, ringDur: 365, ringMaxPx: 240,
+            shapes: ["circle", "star4", "streak", "sparkle"],
+            rings: 3, ringDur: 340, ringMaxPx: 240,
             nebula: true, shake: null, flashSize: 260
         },
         256: {
-            count: 130, spread: 152, speed: 4.1, life: 77,
-            radii: [3.3, 7.0],
+            count: 64, spread: 148, speed: 5.0, life: 48,
+            radii: [2.8, 5.8],
             colors: ["#ff4020", "#ff1800", "#ff8060", "#ffffff", "#cc0000", "#ff3050"],
-            shapes: ["circle", "star4", "star6", "streak", "nova"],
-            rings: 3, ringDur: 380, ringMaxPx: 275,
+            shapes: ["circle", "star4", "streak", "sparkle"],
+            rings: 3, ringDur: 350, ringMaxPx: 275,
             nebula: true, shake: null, flashSize: 295
         },
         512: {
-            count: 165, spread: 180, speed: 4.7, life: 82,
-            radii: [3.6, 8.0],
+            count: 76, spread: 175, speed: 5.2, life: 50,
+            radii: [3.0, 6.2],
             colors: ["#e030e0", "#a010c0", "#f080f0", "#ffffff", "#800090", "#cc40ff"],
-            shapes: ["circle", "star4", "star6", "streak", "nova", "lightning"],
-            rings: 3, ringDur: 390, ringMaxPx: 315,
+            shapes: ["circle", "star4", "streak", "sparkle", "lightning"],
+            rings: 3, ringDur: 360, ringMaxPx: 315,
             nebula: true, shake: "sfx-shake", flashSize: 340,
             screenFlash: false, doubleBurst: true
         },
         1024: {
-            count: 220, spread: 220, speed: 5.5, life: 92,
-            radii: [4.0, 9.5],
+            count: 88, spread: 210, speed: 5.8, life: 52,
+            radii: [3.2, 6.8],
             colors: ["#60e0ff", "#20beff", "#ffffff", "#aaffff", "#0090d0", "#a0f0ff"],
-            shapes: ["circle", "star4", "star6", "streak", "comet", "nova", "lightning"],
-            rings: 4, ringDur: 415, ringMaxPx: 390,
+            shapes: ["circle", "star4", "streak", "comet", "lightning", "sparkle"],
+            rings: 4, ringDur: 385, ringMaxPx: 390,
             nebula: true, shake: "sfx-shake-heavy", flashSize: 415,
             screenFlash: true, doubleBurst: true
         },
         2048: {
-            count: 300, spread: 265, speed: 6.8, life: 104,
-            radii: [5.0, 12.0],
+            count: 100, spread: 255, speed: 6.5, life: 55,
+            radii: [3.5, 7.5],
             colors: ["#ffe040", "#ffffff", "#ffaa00", "#ffff80", "#ff8800", "#fffac8", "#fff0a0"],
-            shapes: ["circle", "star4", "star6", "streak", "comet", "nova", "lightning"],
-            rings: 5, ringDur: 455, ringMaxPx: 480,
+            shapes: ["circle", "star4", "streak", "comet", "lightning", "sparkle"],
+            rings: 5, ringDur: 420, ringMaxPx: 480,
             nebula: true, shake: "sfx-shake-cosmic", flashSize: 510,
             screenFlash: true, doubleBurst: true, multiNebula: true
         }
@@ -187,15 +188,30 @@ var SpaceEffects = (function () {
         var size = rand(cfg.radii[0], cfg.radii[1]);
         var color = pick(cfg.colors);
 
-        /* Comets get elongated trail */
         var isComet = shape === "comet";
         var isStar = shape === "star4" || shape === "star6";
+        var isLightning = shape === "lightning";
 
-        /* Higher-value particles get stronger glow */
-        var glowRadius = key >= 512 ? size * 3.5
-            : key >= 128 ? size * 2.5
-                : key >= 32 ? size * 1.8
-                    : size * 1.0;
+        /* Higher-value particles get stronger glow — capped to keep GPU happy */
+        var glowRadius = key >= 512 ? size * 2.2
+            : key >= 128 ? size * 1.8
+                : key >= 32 ? size * 1.4
+                    : size * 0.9;
+
+        /* Pre-bake lightning bolt jitter — draw reuses these every frame
+           so Math.random() is never called in the hot draw path. */
+        var boltPts = null;
+        if (isLightning) {
+            var SEG = 5;
+            boltPts = [];
+            var boltLen = rand(size * 7, size * 11);
+            for (var li = 0; li <= SEG; li++) {
+                boltPts.push({
+                    t: li / SEG,
+                    j: li === 0 || li === SEG ? 0 : (Math.random() - 0.5) * boltLen * 0.5
+                });
+            }
+        }
 
         var p = {
             x: cx + ox,
@@ -212,6 +228,7 @@ var SpaceEffects = (function () {
             glowR: glowRadius,
             trail: isComet ? [] : null,
             points: isStar ? (shape === "star4" ? 4 : 6) : 0,
+            boltPts: boltPts,
             rotation: rand(0, Math.PI * 2),
             rotSpeed: rand(-0.12, 0.12),
             twinkle: (shape === "sparkle") ? rand(0.04, 0.10) : 0,
@@ -227,7 +244,7 @@ var SpaceEffects = (function () {
         ctx.save();
         ctx.globalAlpha = alpha;
         if (p.glowR > 0) {
-            ctx.shadowBlur = p.glowR * 2;
+            ctx.shadowBlur = p.glowR * 0.9;
             ctx.shadowColor = p.color;
         }
         ctx.fillStyle = p.color;
@@ -245,7 +262,7 @@ var SpaceEffects = (function () {
 
         ctx.save();
         ctx.globalAlpha = sa;
-        ctx.shadowBlur = p.glowR * 3;
+        ctx.shadowBlur = p.glowR * 1.4;
         ctx.shadowColor = p.color;
         ctx.strokeStyle = p.color;
         ctx.lineWidth = r * 0.25;
@@ -276,7 +293,7 @@ var SpaceEffects = (function () {
 
         ctx.save();
         ctx.globalAlpha = sa;
-        ctx.shadowBlur = p.glowR * 2.5;
+        ctx.shadowBlur = p.glowR * 1.2;
         ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
         ctx.translate(p.x, p.y);
@@ -303,7 +320,7 @@ var SpaceEffects = (function () {
 
         ctx.save();
         ctx.globalAlpha = Math.min(1, alpha * 1.15);
-        ctx.shadowBlur = p.glowR * 2;
+        ctx.shadowBlur = p.glowR * 0.9;
         ctx.shadowColor = p.color;
         var grad = ctx.createLinearGradient(
             p.x, p.y,
@@ -328,33 +345,33 @@ var SpaceEffects = (function () {
     }
 
     function drawComet(p, alpha) {
-        /* Comet with persistent trail */
+        /* Comet with persistent trail — NO shadowBlur on trail (perf) */
         if (!p.trail) { drawStreak(p, alpha); return; }
         ctx.save();
+        ctx.shadowBlur = 0;
         for (var i = 0; i < p.trail.length; i++) {
             var t = p.trail[i];
-            var ta = alpha * (i / p.trail.length) * 0.5;
+            var ta = alpha * (i / p.trail.length) * 0.45;
             ctx.globalAlpha = ta;
-            ctx.shadowBlur = p.glowR;
-            ctx.shadowColor = p.color;
             ctx.fillStyle = p.color;
             ctx.beginPath();
-            var ts = p.size * (0.2 + 0.8 * (i / p.trail.length));
+            var ts = p.size * (0.15 + 0.7 * (i / p.trail.length));
             ctx.arc(t.x, t.y, ts, 0, Math.PI * 2);
             ctx.fill();
         }
-        /* bright head */
-        ctx.globalAlpha = alpha;
-        ctx.shadowBlur = p.glowR * 3;
+        /* bright head — only the head gets glow */
+        ctx.shadowBlur = p.glowR * 1.5;
         ctx.shadowColor = "#ffffff";
+        ctx.globalAlpha = alpha;
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * 0.7, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = alpha * 0.7;
+        ctx.globalAlpha = alpha * 0.65;
+        ctx.shadowBlur = 0;
         ctx.fillStyle = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 1.4, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size * 1.3, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
     }
@@ -365,7 +382,7 @@ var SpaceEffects = (function () {
         var armLen = r * 5.5;
         ctx.save();
         ctx.globalAlpha = Math.min(1, alpha * 1.2);
-        ctx.shadowBlur = p.glowR * 4;
+        ctx.shadowBlur = p.glowR * 2;
         ctx.shadowColor = p.color;
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rotation);
@@ -389,7 +406,7 @@ var SpaceEffects = (function () {
         /* bright core */
         ctx.globalAlpha = alpha;
         ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = p.glowR * 5;
+        ctx.shadowBlur = p.glowR * 2;
         ctx.shadowColor = "#ffffff";
         ctx.beginPath();
         ctx.arc(0, 0, r * 0.9, 0, Math.PI * 2);
@@ -404,50 +421,45 @@ var SpaceEffects = (function () {
     }
 
     function drawLightning(p, alpha) {
-        /* Jagged forked bolt aligned with velocity */
+        /* Uses pre-baked bolt points — zero Math.random() calls per frame */
+        var pts = p.boltPts;
+        if (!pts || pts.length < 2) { drawCircle(p, alpha); return; }
         var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
         if (speed < 0.01) { drawCircle(p, alpha); return; }
         var nx = p.vx / speed;
         var ny = p.vy / speed;
         var len = p.size * 9;
-        /* perpendicular */
-        var px = -ny;
-        var py = nx;
+        var perp_x = -ny;
+        var perp_y = nx;
+
         ctx.save();
-        ctx.globalAlpha = Math.min(1, alpha * 1.3);
-        ctx.shadowBlur = p.glowR * 5;
-        ctx.shadowColor = "#ffffff";
-        /* outer glow stroke */
+        ctx.globalAlpha = Math.min(1, alpha * 1.25);
+        ctx.shadowBlur = p.glowR * 1.8;
+        ctx.shadowColor = p.color;
         ctx.strokeStyle = p.color;
-        ctx.lineWidth = p.size * 0.9;
+        ctx.lineWidth = p.size * 0.85;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.beginPath();
-        var bx = p.x, by = p.y;
-        var seg = 4;
-        ctx.moveTo(bx, by);
-        for (var s = 1; s <= seg; s++) {
-            var t2 = s / seg;
-            var jitter = (Math.random() - 0.5) * len * 0.55;
+        ctx.moveTo(p.x, p.y);
+        for (var s = 1; s < pts.length; s++) {
             ctx.lineTo(
-                bx + nx * len * t2 + px * jitter,
-                by + ny * len * t2 + py * jitter
+                p.x + nx * len * pts[s].t + perp_x * pts[s].j,
+                p.y + ny * len * pts[s].t + perp_y * pts[s].j
             );
         }
         ctx.stroke();
         /* bright white core */
         ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = p.size * 0.28;
-        ctx.shadowBlur = p.glowR * 8;
+        ctx.lineWidth = p.size * 0.26;
+        ctx.shadowBlur = p.glowR * 1.2;
         ctx.shadowColor = "#ffffff";
         ctx.beginPath();
-        ctx.moveTo(bx, by);
-        for (var s2 = 1; s2 <= seg; s2++) {
-            var t3 = s2 / seg;
-            var j2 = (Math.random() - 0.5) * len * 0.4;
+        ctx.moveTo(p.x, p.y);
+        for (var s2 = 1; s2 < pts.length; s2++) {
             ctx.lineTo(
-                bx + nx * len * t3 + px * j2,
-                by + ny * len * t3 + py * j2
+                p.x + nx * len * pts[s2].t + perp_x * pts[s2].j,
+                p.y + ny * len * pts[s2].t + perp_y * pts[s2].j
             );
         }
         ctx.stroke();
@@ -480,6 +492,10 @@ var SpaceEffects = (function () {
     function step() {
         if (!ctx) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        /* if pool grew too large, cull the oldest particles first */
+        if (particles.length > MAX_PARTICLES) {
+            particles.splice(0, particles.length - MAX_PARTICLES);
+        }
 
         for (var i = particles.length - 1; i >= 0; i--) {
             var p = particles[i];
@@ -487,7 +503,7 @@ var SpaceEffects = (function () {
             /* record comet trail */
             if (p.trail !== null) {
                 p.trail.push({ x: p.x, y: p.y });
-                if (p.trail.length > 14) p.trail.shift();
+                if (p.trail.length > 8) p.trail.shift();
             }
 
             /* physics */
@@ -669,27 +685,30 @@ var SpaceEffects = (function () {
 
         /* ── particles: first wave ── */
         var count = cfg.count;
-        for (var i = 0; i < count; i++) {
+        /* Clamp so a single burst never floods the pool */
+        var available = MAX_PARTICLES - particles.length;
+        var toSpawn = Math.min(count, Math.max(available, 0));
+        for (var i = 0; i < toSpawn; i++) {
             particles.push(createParticle(cx, cy, cfg, key));
         }
         startLoop();
 
-        /* ── second wave burst (512+): delayed wider spread ── */
+        /* ── second wave burst (512+): smaller delayed scatter ── */
         if (cfg.doubleBurst) {
             var burstCfg = {
-                count: Math.round(cfg.count * 0.55),
-                spread: cfg.spread * 1.5,
-                speed: cfg.speed * 0.7,
-                life: cfg.life * 0.75,
-                radii: [cfg.radii[0] * 0.7, cfg.radii[1] * 0.7],
+                count: Math.min(18, Math.round(cfg.count * 0.22)),
+                spread: cfg.spread * 1.4,
+                speed: cfg.speed * 0.65,
+                life: cfg.life * 0.6,
+                radii: [cfg.radii[0] * 0.65, cfg.radii[1] * 0.65],
                 colors: cfg.colors,
-                shapes: ["sparkle", "streak", "star4"]
+                shapes: ["sparkle", "streak"]
             };
             setTimeout(function () {
                 for (var bi = 0; bi < burstCfg.count; bi++) {
                     particles.push(createParticle(cx, cy, burstCfg, key));
                 }
-            }, 200);
+            }, 180);
         }
     }
 

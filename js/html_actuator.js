@@ -13,14 +13,51 @@ function HTMLActuator() {
     this.undoCount = document.querySelector(".undo-count");
     this.exchangeBtn = document.querySelector(".exchange-button");
     this.exchangeCount = document.querySelector(".exchange-count");
+    this.removeBtn = document.querySelector(".remove-button");
+    this.removeCount = document.querySelector(".remove-count");
     this.swapHint = document.querySelector(".swap-hint");
     this._s = null;
     this._isUndo = false;
     this._isExchange = false;
+    this._isRemove = false;
     this._exchangeMode = false;
     this._exchangeFirst = null;
     this._exchangeSecond = null;
     this._exchangePending = false;
+    this._removeMode = false;
+    this._removePending = false;
+    this._removeTarget = null;
+
+    // Re-measure tile grid whenever the layout shifts (orientation change,
+    // virtual keyboard, browser chrome resize) so tile positions stay accurate.
+    var self = this;
+    var resizeTimer;
+    function onResize() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function () {
+            self._s = null; // invalidate cache — next render will re-measure
+            // Reposition all currently visible tiles to correct coordinates
+            self._measure();
+            if (!self._s) return;
+            var tiles = self.tiles ? self.tiles.querySelectorAll(".tile") : [];
+            for (var i = 0; i < tiles.length; i++) {
+                var gx = parseInt(tiles[i].getAttribute("data-gx"), 10);
+                var gy = parseInt(tiles[i].getAttribute("data-gy"), 10);
+                if (!isNaN(gx) && !isNaN(gy)) {
+                    var pos = self._pos(gx, gy);
+                    tiles[i].style.left = pos.left + "px";
+                    tiles[i].style.top = pos.top + "px";
+                    tiles[i].style.width = self._s.cell + "px";
+                    tiles[i].style.height = self._s.cell + "px";
+                }
+            }
+        }, 120);
+    }
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", function () {
+        // orientationchange fires before the layout reflows; wait for it
+        setTimeout(onResize, 300);
+    });
 }
 
 // Read actual rendered cell positions from the DOM — no math guessing.
@@ -56,10 +93,14 @@ HTMLActuator.prototype.render = function (grid, meta) {
     var self = this;
     this._isUndo = !!meta.isUndo;
     this._isExchange = !!meta.isExchange;
+    this._isRemove = !!meta.isRemove;
     this._exchangeMode = !!meta.exchangeMode;
     this._exchangeFirst = meta.exchangeFirst || null;
     this._exchangeSecond = meta.exchangeSecond || null;
     this._exchangePending = !!meta.exchangePending;
+    this._removeMode = !!meta.removeMode;
+    this._removePending = !!meta.removePending;
+    this._removeTarget = meta.removeTarget || null;
     this._measure();
     this._clear();
     grid.cells.forEach(function (col) {
@@ -82,11 +123,33 @@ HTMLActuator.prototype.render = function (grid, meta) {
         this.exchangeBtn.classList.toggle("exchange-active", this._exchangeMode);
         this.exchangeBtn.classList.toggle("exchange-exhausted", meta.exchangesLeft <= 0);
     }
-    /* Board shell class for exchange-mode cursor */
-    if (this.shell) this.shell.classList.toggle("exchange-mode", this._exchangeMode);
-    /* Swap hint banner — shows context text while in exchange mode */
+    /* Update remove button state */
+    if (this.removeCount) this.removeCount.textContent = meta.removesLeft;
+    if (this.removeBtn) {
+        this.removeBtn.disabled = !meta.canRemove;
+        this.removeBtn.classList.toggle("remove-active", this._removeMode);
+        this.removeBtn.classList.toggle("remove-exhausted", meta.removesLeft <= 0);
+    }
+    /* Board shell class for exchange/remove mode cursor */
+    if (this.shell) {
+        this.shell.classList.toggle("exchange-mode", this._exchangeMode);
+        this.shell.classList.toggle("remove-mode", this._removeMode);
+    }
+    /* Swap hint banner — shows context text while in exchange or remove mode */
     if (this.swapHint) {
-        if (this._exchangeMode) {
+        if (this._removeMode) {
+            // Remove mode takes precedence over exchange mode in the hint banner
+            if (this._removePending) {
+                this.swapHint.textContent = "\u2716 Consuming...";
+                this.swapHint.classList.remove("step2");
+                this.swapHint.classList.add("remove-step", "remove-pending");
+            } else {
+                this.swapHint.textContent = "\u2715 Click a tile to remove it";
+                this.swapHint.classList.remove("step2", "pending", "remove-pending");
+                this.swapHint.classList.add("remove-step");
+            }
+            this.swapHint.classList.add("visible");
+        } else if (this._exchangeMode) {
             if (this._exchangePending) {
                 this.swapHint.textContent = "\u2605 Swapping...";
                 this.swapHint.classList.add("step2", "pending");
@@ -100,7 +163,7 @@ HTMLActuator.prototype.render = function (grid, meta) {
             }
             this.swapHint.classList.add("visible");
         } else {
-            this.swapHint.classList.remove("visible", "step2", "pending");
+            this.swapHint.classList.remove("visible", "step2", "pending", "remove-step", "remove-pending");
         }
     }
     if (meta.terminated) {
@@ -168,6 +231,87 @@ HTMLActuator.prototype._fireSwapBurst = function (el) {
     }, 130);
 };
 
+// ---- Black-hole gravitational-suck particles ----------------------------
+// Spawns 16 inward-spiralling debris streaks around `el`.
+// Each particle starts at a radius and corkscrews inward to the tile centre.
+// Appended to tile-container so they share the same coordinate space.
+
+HTMLActuator.prototype._fireBHParticles = function (el) {
+    var self = this;
+    var COUNT = 16;
+    var COLORS = [
+        "#ff2200", "#ff5500", "#ff8844", "#ffaa00",
+        "#cc0088", "#9900cc", "#6600ff", "#3300aa",
+        "#ffffff", "#ff99cc", "#ffcc88", "#88aaff",
+        "#440022", "#990033", "#ee1144", "#cc66ff"
+    ];
+
+    // Launch particles immediately — the suck animation plays instantly
+    var rect = el.getBoundingClientRect();
+    var cRect = self.tiles.getBoundingClientRect();
+    var cx = (rect.left + rect.width / 2) - cRect.left;
+    var cy = (rect.top + rect.height / 2) - cRect.top;
+
+    for (var i = 0; i < COUNT; i++) {
+        (function (idx) {
+            var pDelay = idx * 12 + Math.random() * 20; // stagger 0–200ms
+            setTimeout(function () {
+                var p = document.createElement("div");
+                p.className = "bh-particle";
+                var angleDeg = (idx / COUNT) * 360 + (Math.random() - 0.5) * 30;
+                var angleRad = angleDeg * Math.PI / 180;
+                var radius = 28 + Math.random() * 30;
+                var spawnX = cx + Math.cos(angleRad) * radius;
+                var spawnY = cy + Math.sin(angleRad) * radius;
+                var size = 3 + Math.random() * 5;
+                var color = COLORS[idx % COLORS.length];
+                var dur = 480 + Math.random() * 180; // 480–660ms
+
+                p.style.cssText = [
+                    "left:" + spawnX + "px",
+                    "top:" + spawnY + "px",
+                    "width:" + size + "px",
+                    "height:" + size * 2.2 + "px",
+                    "--bh-tx:" + (cx - spawnX) + "px",
+                    "--bh-ty:" + (cy - spawnY) + "px",
+                    "--bh-rot:" + (angleDeg + 90 + 300) + "deg",
+                    "background:" + color,
+                    "animation-duration:" + dur + "ms"
+                ].join(";");
+                self.tiles.appendChild(p);
+
+                setTimeout(function () {
+                    if (p.parentNode) p.parentNode.removeChild(p);
+                }, dur + 60);
+            }, pDelay);
+        }(i));
+    }
+
+    // Also fire a gravitational-distortion ring at 0ms
+    (function () {
+        var ring = document.createElement("div");
+        ring.className = "bh-ring";
+        ring.style.left = cx + "px";
+        ring.style.top = cy + "px";
+        self.tiles.appendChild(ring);
+        setTimeout(function () {
+            if (ring.parentNode) ring.parentNode.removeChild(ring);
+        }, 800);
+    }());
+
+    // Second tighter ring at 200ms
+    setTimeout(function () {
+        var ring2 = document.createElement("div");
+        ring2.className = "bh-ring bh-ring-2";
+        ring2.style.left = cx + "px";
+        ring2.style.top = cy + "px";
+        self.tiles.appendChild(ring2);
+        setTimeout(function () {
+            if (ring2.parentNode) ring2.parentNode.removeChild(ring2);
+        }, 600);
+    }, 200);
+};
+
 // ---- Draw a single tile --------------------------------------------------
 // isGhost = true when drawing the pre-merge source tiles (they slide + fade out)
 
@@ -210,6 +354,14 @@ HTMLActuator.prototype._drawTile = function (tile, isGhost) {
         }
         if (second && second.x === tile.x && second.y === tile.y) {
             el.classList.add("tile-exchange-selected", "tile-exchange-second");
+        }
+    }
+
+    // Remove mode: dull all tiles; mark the targeted tile
+    if (!isGhost && this._removeMode) {
+        el.classList.add("tile-removeable");
+        if (this._removeTarget && this._removeTarget.x === tile.x && this._removeTarget.y === tile.y) {
+            el.classList.add("tile-remove-target");
         }
     }
 
@@ -279,6 +431,12 @@ HTMLActuator.prototype._drawTile = function (tile, isGhost) {
         } else if (tile.justSpawned) {
             // Only brand-new spawned tiles get the pop-in animation
             el.classList.add("tile-new");
+        }
+        // Black-hole suck: tile is the remove target — play suck animation
+        if (this._removeMode && this._removeTarget &&
+            this._removeTarget.x === tile.x && this._removeTarget.y === tile.y) {
+            el.classList.add("tile-bh-suck");
+            this._fireBHParticles(el);
         }
         // Otherwise the tile exists unchanged on the board (exchange-mode
         // toggle / first-tile selection) — render it silently, no animation.

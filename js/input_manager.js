@@ -68,6 +68,12 @@ InputManager.prototype.listen = function () {
         self.emit("exchangeToggle");
     });
 
+    var removeBtn = document.querySelector(".remove-button");
+    if (removeBtn) removeBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        self.emit("removeToggle");
+    });
+
     // Delegated tile click — used by exchange mode to pick tiles
     var tileContainer = document.querySelector(".tile-container");
     if (tileContainer) tileContainer.addEventListener("click", function (e) {
@@ -92,6 +98,9 @@ InputManager.prototype.listen = function () {
         if (e.key === "x" || e.key === "X") {
             e.preventDefault(); self.emit("exchangeToggle");
         }
+        if (e.key === "b" || e.key === "B") {
+            e.preventDefault(); self.emit("removeToggle");
+        }
     });
 
     // ---- Touch swipe ----------------------------------------------------
@@ -110,13 +119,42 @@ InputManager.prototype.listen = function () {
 
     board.addEventListener("touchend", function (e) {
         if (!self.touchStart || e.touches.length > 0) return;
-        var dx = e.changedTouches[0].clientX - self.touchStart.x;
-        var dy = e.changedTouches[0].clientY - self.touchStart.y;
+        var touch = e.changedTouches[0];
+        var dx = touch.clientX - self.touchStart.x;
+        var dy = touch.clientY - self.touchStart.y;
         var adx = Math.abs(dx);
         var ady = Math.abs(dy);
         self.touchStart = null;
-        if (Math.max(adx, ady) < 10) return;
-        // horizontal vs vertical, then sign
+
+        if (Math.max(adx, ady) < 10) {
+            // Tap — e.preventDefault() on touchstart kills all synthetic click
+            // events inside .board-shell (retry button, tiles, etc). We handle
+            // every tappable element here manually.
+            var el = document.elementFromPoint(touch.clientX, touch.clientY);
+            var node = el;
+            while (node) {
+                if (!node.classList) { node = node.parentElement; continue; }
+                // Retry / New Game buttons inside the game-over overlay
+                if (node.classList.contains("retry-button") ||
+                    node.classList.contains("new-game-button")) {
+                    self.emit("restart");
+                    return;
+                }
+                // Tile tap in exchange mode
+                if (node.classList.contains("tile")) {
+                    var gx = parseInt(node.getAttribute("data-gx"), 10);
+                    var gy = parseInt(node.getAttribute("data-gy"), 10);
+                    if (!isNaN(gx) && !isNaN(gy)) self.emit("tileClick", { x: gx, y: gy });
+                    return;
+                }
+                // Stop walking at board boundary
+                if (node.classList.contains("board-shell")) break;
+                node = node.parentElement;
+            }
+            return;
+        }
+
+        // Swipe — horizontal vs vertical, then sign
         self.emit("move", adx > ady ? (dx > 0 ? 1 : 3) : (dy > 0 ? 2 : 0));
     });
 };

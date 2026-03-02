@@ -37,6 +37,20 @@ var SoundManager = (function () {
         return _ctx;
     }
 
+    // ── Unlock AudioContext on first user gesture ─────────────────────────
+    // Browsers block AudioContext.start() until a user gesture has occurred.
+    // This listener creates/resumes the context silently on any of the three
+    // earliest possible gestures, then removes itself.
+    function _unlockAudio() {
+        _getCtx();
+        ["pointerdown", "touchstart", "keydown"].forEach(function (ev) {
+            document.removeEventListener(ev, _unlockAudio, true);
+        });
+    }
+    ["pointerdown", "touchstart", "keydown"].forEach(function (ev) {
+        document.addEventListener(ev, _unlockAudio, { capture: true, once: true, passive: true });
+    });
+
     // ── Utility: harmonic soft-clip waveshaper curve ───────────────────────
     function _makeClipCurve(amount) {
         var n = 256;
@@ -374,6 +388,84 @@ var SoundManager = (function () {
         _noise(0.70, 180, 60, 0.22, 0.30);
     }
 
+    // ── BLACK HOLE — Tile removal: gravitational singularity suck ─────────
+    // 700ms arc matching the CSS tile-bh-suck animation.
+    // Stage 1 (0–300ms): rising gravitational rumble — low freqs drop toward
+    //   singularity. A broadband noise sweep collapses from wide to narrow.
+    // Stage 2 (300–550ms): inward spiral harmonics — descending arpeggio
+    //   that mimics the tile corkscrewing inward, each note lower/quieter.
+    // Stage 3 (550–700ms): event horizon implosion — sub-bass pop + silence.
+    function _playBlackHole() {
+        var ctx = _getCtx();
+        var now = ctx.currentTime;
+
+        // === PHASE 1: Gravitational linger (0 - 480ms) ======================
+        // Deep bass drone -- ominous hum that builds during the slow wobble phase
+        _osc(55,  "sine",     0.010, 0.90, 0.44, 0.000); // sub-fundamental
+        _osc(38,  "sine",     0.012, 0.80, 0.42, 0.000); // infrasub rumble
+        _osc(82,  "triangle", 0.008, 0.55, 0.38, 0.000); // low harmonic
+        _osc(110, "sine",     0.006, 0.35, 0.32, 0.050); // gentle growl overtone
+
+        // Very slow noise sweeps -- wide to narrow, crawling down over 480ms
+        _noise(0.46, 3200, 65,  0.54, 0.000); // broad roar, slow decay
+        _noise(0.40, 1600, 48,  0.40, 0.060); // mid sweep
+        _noise(0.34, 700,  32,  0.30, 0.130); // low rumble
+        _noise(0.28, 280,  18,  0.22, 0.220); // sub wash
+
+        // Faint high shimmer -- barely perceptible, adds spacial unease
+        _osc(2400, "sine", 0.001, 0.08, 0.38, 0.000);
+
+        // === PHASE 2: GULP / SWALLOW (T = 480ms) ============================
+        // Brief pre-click -- fast transient just before the swallow
+        _noise(0.016, 9000, 4000, 0.72, 0.472);
+
+        // Throat sweep: sawtooth rockets from 3200Hz to 28Hz in 90ms
+        // This is the signature "swallow" tone -- fast and dramatic
+        var T = now + 0.480;
+        var sweepOsc = ctx.createOscillator();
+        var sweepEnv = ctx.createGain();
+        var sweepShaper = ctx.createWaveShaper();
+        sweepShaper.curve = _makeClipCurve(80);
+        sweepOsc.type = "sawtooth";
+        sweepOsc.frequency.setValueAtTime(3200, T);
+        sweepOsc.frequency.exponentialRampToValueAtTime(28, T + 0.090);
+        sweepOsc.connect(sweepShaper);
+        sweepShaper.connect(sweepEnv);
+        sweepEnv.connect(_masterGain);
+        sweepEnv.gain.setValueAtTime(0, T);
+        sweepEnv.gain.linearRampToValueAtTime(0.85, T + 0.004);
+        sweepEnv.gain.exponentialRampToValueAtTime(0.0001, T + 0.095);
+        sweepOsc.start(T);
+        sweepOsc.stop(T + 0.100);
+
+        // Hollow knock: sub-bass punch at the moment of swallow
+        var knockOsc = ctx.createOscillator();
+        var knockEnv = ctx.createGain();
+        var knockShaper = ctx.createWaveShaper();
+        knockShaper.curve = _makeClipCurve(280);
+        knockOsc.type = "sine";
+        knockOsc.frequency.setValueAtTime(62, T + 0.018);
+        knockOsc.frequency.exponentialRampToValueAtTime(24, T + 0.110);
+        knockOsc.connect(knockShaper);
+        knockShaper.connect(knockEnv);
+        knockEnv.connect(_masterGain);
+        knockEnv.gain.setValueAtTime(0, T + 0.018);
+        knockEnv.gain.linearRampToValueAtTime(0.98, T + 0.021);
+        knockEnv.gain.exponentialRampToValueAtTime(0.0001, T + 0.135);
+        knockOsc.start(T + 0.018);
+        knockOsc.stop(T + 0.145);
+
+        // Cavity resonance -- dark hollow body resonance of the void opening
+        _noise(0.10, 220, 35, 0.26, 0.498); // low cave resonance
+        _noise(0.08, 90,  20, 0.18, 0.518); // very low sub flutter
+
+        // === PHASE 3: Void ring-out (T + 60ms onward) =======================
+        // Almost silent -- just enough to mark the emptiness left behind
+        _osc(22, "sine", 0.06, 0.28, 0.18, 0.540);
+        _osc(16, "sine", 0.08, 0.18, 0.16, 0.555);
+    }
+
+
     // ── Dispatcher ─────────────────────────────────────────────────────────
 
     var _sounds = {
@@ -384,6 +476,7 @@ var SoundManager = (function () {
         swapSelect: _playSwapSelect,
         swapConfirm: _playSwapConfirm,
         swap: _playSwap,
+        blackHole: _playBlackHole,
         win: _playWin,
         gameover: _playGameover
     };

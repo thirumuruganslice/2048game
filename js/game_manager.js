@@ -15,6 +15,7 @@ function GameManager(size, InputManager, Actuator) {
     this.input.on("restart", this.restart.bind(this));
     this.input.on("undo", this.undo.bind(this));
     this.input.on("exchangeToggle", this.exchangeToggle.bind(this));
+    this.input.on("removeToggle", this.removeToggle.bind(this));
     this.input.on("tileClick", this.handleTileClick.bind(this));
 
     this.setup();
@@ -38,6 +39,11 @@ GameManager.prototype.setup = function () {
     this._exchangeSecond = null;   // second tile chosen — both glow before swap fires
     this._exchangePending = false; // true during the 600ms preview window
     this._exchangeFired = false;
+    this.removesUsed = 0;      // hard cap: max 2 removes per game
+    this._removeMode = false;
+    this._removePending = false; // true during the 700ms suck animation
+    this._removeTarget = null;   // {x,y} of tile being consumed
+    this._removeFired = false;
 
     this.addStartTiles();
     this.actuate();
@@ -77,6 +83,7 @@ GameManager.prototype.spawnTile = function () {
 // direction: 0 = up | 1 = right | 2 = down | 3 = left
 GameManager.prototype.move = function (direction) {
     if (this.isTerminated()) return;
+    if (this._removePending) return; // freeze during black-hole animation
 
     var self = this;
     var stateBeforeMove = this._snapshotState();
@@ -129,6 +136,10 @@ GameManager.prototype.move = function (direction) {
             this._exchangeMode = false;
             this._exchangeFirst = null;
         }
+        // Cancel remove mode if player made a regular move
+        if (this._removeMode) {
+            this._removeMode = false;
+        }
         // Only store undo history if the cap hasn't been hit yet
         if (this.undosUsed < 2) {
             this.undoStack.push(stateBeforeMove);
@@ -162,7 +173,10 @@ GameManager.prototype.exchangeToggle = function () {
     if (this.isTerminated()) return;
     if (this.exchangesUsed >= 2) return;
     if (this._exchangePending) return; // don't cancel while swap is mid-flight
-    this._clearMergeState(); // prevent ghost replay when entering exchange mode
+    if (this._removePending) return;   // don't cancel while removal is mid-flight
+    // Cancel remove mode if switching to exchange
+    if (this._removeMode) { this._removeMode = false; }
+    this._clearMergeState();
     this._exchangeMode = !this._exchangeMode;
     if (!this._exchangeMode && typeof SoundManager !== "undefined") SoundManager.stopPowerUp();
     this._exchangeFirst = null;
@@ -170,7 +184,55 @@ GameManager.prototype.exchangeToggle = function () {
     this.actuate();
 };
 
+// ---- Remove Tile --------------------------------------------------------
+
+GameManager.prototype.removeToggle = function () {
+    if (this.isTerminated()) return;
+    if (this.removesUsed >= 2) return;
+    if (this._removePending) return;   // don't toggle while suck is mid-flight
+    if (this._exchangePending) return; // don't toggle while swap is mid-flight
+    // Cancel exchange mode if switching to remove
+    if (this._exchangeMode) {
+        this._exchangeMode = false;
+        this._exchangeFirst = null;
+        this._exchangeSecond = null;
+        if (typeof SoundManager !== "undefined") SoundManager.stopPowerUp();
+    }
+    this._clearMergeState();
+    this._removeMode = !this._removeMode;
+    this.actuate();
+};
+
 GameManager.prototype.handleTileClick = function (pos) {
+    // ── Remove mode: suck tile into black hole ────────────────────────────
+    if (this._removeMode && !this._exchangeMode) {
+        if (this.isTerminated()) return;
+        if (this._removePending) return; // locked during suck animation
+        var rtile = this.grid.cellContent(pos);
+        if (!rtile) return; // clicked empty cell
+
+        this._removePending = true;
+        this._removeTarget = { x: pos.x, y: pos.y };
+        this._clearMergeState();
+        if (typeof SoundManager !== "undefined") SoundManager.play("blackHole");
+        this.actuate(); // render: tile gets black-hole-suck animation
+
+        var self = this;
+        setTimeout(function () {
+            var t = self.grid.cells[self._removeTarget.x][self._removeTarget.y];
+            if (t) self.grid.removeTile(t);
+            self.grid.cells[self._removeTarget.x][self._removeTarget.y] = null;
+            self._removeTarget = null;
+            self._removePending = false;
+            self._removeMode = false;
+            self.removesUsed++;
+            self._removeFired = true;
+            self.actuate();
+        }, 700);
+        return;
+    }
+
+    // ── Exchange mode ─────────────────────────────────────────────────────
     if (!this._exchangeMode || this.isTerminated()) return;
     if (this._exchangePending) return; // locked during preview window
     var tile = this.grid.cellContent(pos);
@@ -386,6 +448,8 @@ GameManager.prototype.actuate = function () {
     this._undoFired = false;
     var isExchange = !!this._exchangeFired;
     this._exchangeFired = false;
+    var isRemove = !!this._removeFired;
+    this._removeFired = false;
     this.actuator.render(this.grid, {
         over: this.over,
         won: this.won,
@@ -401,6 +465,12 @@ GameManager.prototype.actuate = function () {
         exchangeFirst: this._exchangeFirst,
         exchangeSecond: this._exchangeSecond,
         exchangePending: this._exchangePending,
-        isExchange: isExchange
+        isExchange: isExchange,
+        removesLeft: Math.max(0, 2 - this.removesUsed),
+        canRemove: this.removesUsed < 2 && !this.isTerminated(),
+        removeMode: this._removeMode,
+        removePending: this._removePending,
+        removeTarget: this._removeTarget,
+        isRemove: isRemove
     });
 };
