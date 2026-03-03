@@ -1024,130 +1024,255 @@
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   Black-hole tile suck — tile removal gravitational collapse animation
-   700ms arc matching JS setTimeout in game_manager.removeToggle handler.
+   BLACK HOLE TILE ABSORPTION — full rebuild
+   1500ms total, three simultaneous tracks on the tile element:
 
-   3-stage:
-   1. Gravity-grab (0–15%): slight pulsing enlarge + red hue spike → "lock-on"
-   2. Orbital decay (15–72%): accelerating corkscrew spin + shrink toward zero
-   3. Singularity (72–100%): final snap-collapse into nothing, brief red flash
+   Track 1 — bh-collapse  (transform: scale + filter)
+     Bright white-hot flare on lock-on → smooth uniform implosion →
+     complete colour drain → Hawking-radiation pulse at 96% → void.
+
+   Track 2 — bh-spin  (transform: rotate, piggy-backed on same property via
+     decomposed values — handled by nesting rotate() inside scale() in
+     bh-collapse so they share one transform: property cleanly)
+
+   Track 3 — bh-tremble  (CSS translate — independent property, no conflict)
+     Violent high-frequency jitter for first 600ms, amplitude decays to zero.
+
+   ::after — luminous cyan void-ring
+     Appears at full size instantly, always pulls straight inward to centre.
+     Uses mix-blend-mode: screen so it glows over the tile without obscuring.
    ────────────────────────────────────────────────────────────────────────── */
 
 .tile-bh-suck {
-  /* linear so every keyframe percent = exact real-time ms */
-  animation: tile-bh-suck 700ms linear forwards;
+  animation:
+    bh-collapse 1500ms cubic-bezier(0.28, 0, 0.72, 1) forwards,
+    bh-tremble 600ms linear forwards;
   z-index: 20 !important;
   overflow: visible;
+  transform-origin: center center;
 }
 
-/* Event-horizon ring: drifts outward slowly during linger, then implodes */
+/* Luminous void ring — cyan/white, starts at max size, pulls straight in */
 .tile-bh-suck::after {
   content: "";
   position: absolute;
   inset: 50%;
   border-radius: 50%;
+  pointer-events: none;
   background: radial-gradient(
     circle,
-    rgba(255, 255, 255, 0.90) 0%,
-    rgba(255, 70, 10, 0.70)  22%,
-    rgba(160, 0,  0,  0.40)  48%,
-    rgba(60,  0,  30, 0.14)  70%,
-    transparent 88%
+    rgba(255, 255, 255, 1) 0%,
+    rgba(130, 230, 255, 0.92) 14%,
+    rgba(0, 150, 255, 0.72) 32%,
+    rgba(0, 50, 180, 0.42) 56%,
+    rgba(0, 0, 50, 0.14) 76%,
+    transparent 92%
   );
-  pointer-events: none;
-  animation: bh-event-horizon-ring 700ms linear both;
+  mix-blend-mode: screen;
+  animation: bh-void-ring 1500ms cubic-bezier(0.28, 0, 0.72, 1) both;
   z-index: 21;
 }
 
-@keyframes bh-event-horizon-ring {
-  0%   { inset: 50%;   opacity: 0;    }
-  4%   { inset: -14px; opacity: 0.88; }
-  20%  { inset: -22px; opacity: 0.78; }
-  40%  { inset: -30px; opacity: 0.68; }
-  58%  { inset: -34px; opacity: 0.58; }
-  70%  { inset: -20px; opacity: 0.44; }
-  82%  { inset: -4px;  opacity: 0.25; }
-  92%  { inset: 35%;   opacity: 0.10; }
-  100% { inset: 50%;   opacity: 0;    }
-}
-
-@keyframes tile-bh-suck {
-  /* Phase 1: Gravitational linger (0-60% = 0-420ms) */
+/* ── Void ring: materialises at full size, collapses straight inward ── */
+@keyframes bh-void-ring {
   0% {
-    transform: scale(1.00) rotate(  0deg);
+    inset: -50px;
+    opacity: 0;
+    filter: brightness(1);
+  }
+  5% {
+    inset: -50px;
     opacity: 1;
-    filter: brightness(1.00) saturate(1.00);
+    filter: brightness(3.2);
+  } /* snap on — bright */
+  18% {
+    inset: -44px;
+    opacity: 0.92;
+    filter: brightness(2.4);
   }
-  7% {
-    transform: scale(1.04) rotate(  3deg);
-    opacity: 1;
-    filter: brightness(1.22) saturate(1.15) hue-rotate(342deg);
-  }
-  14% {
-    transform: scale(0.98) rotate(  8deg);
-    opacity: 1;
-    filter: brightness(1.10) saturate(1.08) hue-rotate(346deg);
-  }
-  22% {
-    transform: scale(1.01) rotate( 14deg);
-    opacity: 1;
-    filter: brightness(1.14) saturate(1.06) hue-rotate(350deg);
-  }
-  30% {
-    transform: scale(0.96) rotate( 20deg);
-    opacity: 0.98;
-    filter: brightness(1.02) saturate(0.98) hue-rotate(4deg);
-  }
-  38% {
-    transform: scale(0.93) rotate( 27deg);
-    opacity: 0.96;
-    filter: brightness(0.92) saturate(0.92) hue-rotate(10deg);
+  32% {
+    inset: -34px;
+    opacity: 0.82;
+    filter: brightness(1.8);
   }
   46% {
-    transform: scale(0.90) rotate( 35deg);
-    opacity: 0.94;
-    filter: brightness(0.84) saturate(0.85) hue-rotate(16deg);
-  }
-  54% {
-    transform: scale(0.87) rotate( 43deg);
-    opacity: 0.92;
-    filter: brightness(0.76) saturate(0.78) hue-rotate(22deg);
+    inset: -20px;
+    opacity: 0.68;
+    filter: brightness(1.3);
   }
   60% {
-    transform: scale(0.84) rotate( 50deg);
-    opacity: 0.90;
-    filter: brightness(0.68) saturate(0.70) hue-rotate(28deg);
-  }
-  /* Phase 2: Acceleration onset (60-72% = 420-504ms) */
-  66% {
-    transform: scale(0.66) rotate(108deg);
-    opacity: 0.80;
-    filter: brightness(0.46) saturate(0.50) hue-rotate(52deg);
+    inset: -8px;
+    opacity: 0.5;
+    filter: brightness(0.8);
   }
   72% {
-    transform: scale(0.44) rotate(192deg);
-    opacity: 0.66;
-    filter: brightness(0.28) saturate(0.30) hue-rotate(82deg);
+    inset: 4%;
+    opacity: 0.34;
+    filter: brightness(0.4);
   }
-  /* Phase 3: SWALLOW (72-100% = 504-700ms) */
-  80% {
-    transform: scale(0.20) rotate(330deg);
-    opacity: 0.42;
-    filter: brightness(0.12) saturate(0.14) hue-rotate(126deg);
+  84% {
+    inset: 20%;
+    opacity: 0.16;
+    filter: brightness(0.1);
   }
-  88% {
-    transform: scale(0.06) rotate(478deg);
-    opacity: 0.18;
-    filter: brightness(0.04) saturate(0.04) hue-rotate(162deg);
-  }
-  95% {
-    transform: scale(0.01) rotate(560deg);
+  93% {
+    inset: 38%;
     opacity: 0.05;
-    filter: brightness(0.01) saturate(0);
+    filter: brightness(0);
   }
   100% {
-    transform: scale(0)    rotate(590deg);
+    inset: 50%;
     opacity: 0;
-    filter: brightness(0)  saturate(0);
+    filter: brightness(0);
+  }
+}
+
+/* ── Main collapse: scale × rotation × colour drain ── */
+@keyframes bh-collapse {
+  /* Lock-on flash — white-hot then settles to hot cyan glow */
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1) saturate(1) blur(0px);
+  }
+  7% {
+    transform: scale(1.16) rotate(-4deg);
+    opacity: 1;
+    filter: brightness(4) saturate(2) blur(0px); /* white-hot flare */
+  }
+  14% {
+    transform: scale(1.04) rotate(-9deg);
+    opacity: 1;
+    filter: brightness(1.8) saturate(1.6) blur(0px); /* cyan lock glow */
+  }
+  20% {
+    transform: scale(0.98) rotate(-14deg);
+    opacity: 1;
+    filter: brightness(1.3) saturate(1.3) blur(0.2px);
+  }
+
+  /* Gravitational infall — smooth, accelerating shrink + spin */
+  30% {
+    transform: scale(0.86) rotate(-26deg);
+    opacity: 0.97;
+    filter: brightness(1) saturate(1.1) blur(0.4px);
+  }
+  42% {
+    transform: scale(0.68) rotate(-48deg);
+    opacity: 0.92;
+    filter: brightness(0.7) saturate(0.85) blur(0.9px);
+  }
+  54% {
+    transform: scale(0.48) rotate(-80deg);
+    opacity: 0.82;
+    filter: brightness(0.42) saturate(0.58) blur(1.8px);
+  }
+
+  /* Event-horizon crossing — colour fully drained, heavy blur */
+  66% {
+    transform: scale(0.3) rotate(-120deg);
+    opacity: 0.64;
+    filter: brightness(0.18) saturate(0.25) blur(3.2px);
+  }
+  78% {
+    transform: scale(0.14) rotate(-170deg);
+    opacity: 0.4;
+    filter: brightness(0.05) saturate(0.06) blur(4.8px);
+  }
+  88% {
+    transform: scale(0.05) rotate(-210deg);
+    opacity: 0.2;
+    filter: brightness(0.01) saturate(0) blur(5.5px);
+  }
+
+  /* Hawking-radiation pulse — brief white spike before final void */
+  95% {
+    transform: scale(0.02) rotate(-238deg);
+    opacity: 0.65;
+    filter: brightness(6) saturate(0) blur(1px);
+  }
+  98% {
+    transform: scale(0.005) rotate(-248deg);
+    opacity: 0.04;
+    filter: brightness(0) saturate(0) blur(0px);
+  }
+  100% {
+    transform: scale(0) rotate(-252deg);
+    opacity: 0;
+    filter: brightness(0) saturate(0) blur(0px);
+  }
+}
+
+/* ── Tremble: high-freq position jitter, decays to zero by 600ms ── */
+@keyframes bh-tremble {
+  /* 0–35% (0–210ms): violent grab, ±9px */
+  0% {
+    translate: 0px 0px;
+  }
+  4% {
+    translate: -9px 4px;
+  }
+  8% {
+    translate: 8px -6px;
+  }
+  12% {
+    translate: -9px 5px;
+  }
+  16% {
+    translate: 7px -7px;
+  }
+  20% {
+    translate: -8px 5px;
+  }
+  24% {
+    translate: 9px -4px;
+  }
+  28% {
+    translate: -7px 6px;
+  }
+  32% {
+    translate: 8px -5px;
+  }
+
+  /* 35–55% (210–330ms): medium pull, ±5px */
+  36% {
+    translate: -5px 3px;
+  }
+  40% {
+    translate: 6px -4px;
+  }
+  44% {
+    translate: -5px 4px;
+  }
+  48% {
+    translate: 4px -5px;
+  }
+  52% {
+    translate: -4px 3px;
+  }
+
+  /* 55–75% (330–450ms): fading tremor, ±2px */
+  56% {
+    translate: 3px -2px;
+  }
+  61% {
+    translate: -2px 2px;
+  }
+  66% {
+    translate: 2px -1px;
+  }
+  72% {
+    translate: -1px 2px;
+  }
+
+  /* 75–100% (450–600ms): smooth return to rest */
+  80% {
+    translate: 1px -1px;
+  }
+  90% {
+    translate: 0px 0px;
+  }
+  100% {
+    translate: 0px 0px;
   }
 }

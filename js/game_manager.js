@@ -41,7 +41,7 @@ GameManager.prototype.setup = function () {
     this._exchangeFired = false;
     this.removesUsed = 0;      // hard cap: max 2 removes per game
     this._removeMode = false;
-    this._removePending = false; // true during the 700ms suck animation
+    this._removePending = false; // true during the 1500ms suck animation
     this._removeTarget = null;   // {x,y} of tile being consumed
     this._removeFired = false;
 
@@ -191,6 +191,9 @@ GameManager.prototype.removeToggle = function () {
     if (this.removesUsed >= 2) return;
     if (this._removePending) return;   // don't toggle while suck is mid-flight
     if (this._exchangePending) return; // don't toggle while swap is mid-flight
+    // Only allow removal when more than 3 tiles are on the board
+    var tileCount = (this.grid.size * this.grid.size) - this.grid.availableCells().length;
+    if (tileCount <= 3) return;
     // Cancel exchange mode if switching to remove
     if (this._exchangeMode) {
         this._exchangeMode = false;
@@ -228,7 +231,7 @@ GameManager.prototype.handleTileClick = function (pos) {
             self.removesUsed++;
             self._removeFired = true;
             self.actuate();
-        }, 700);
+        }, 1000);
         return;
     }
 
@@ -467,7 +470,8 @@ GameManager.prototype.actuate = function () {
         exchangePending: this._exchangePending,
         isExchange: isExchange,
         removesLeft: Math.max(0, 2 - this.removesUsed),
-        canRemove: this.removesUsed < 2 && !this.isTerminated(),
+        canRemove: this.removesUsed < 2 && !this.isTerminated() &&
+            ((this.grid.size * this.grid.size) - this.grid.availableCells().length) > 3,
         removeMode: this._removeMode,
         removePending: this._removePending,
         removeTarget: this._removeTarget,
