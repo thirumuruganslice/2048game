@@ -618,6 +618,7 @@ body {
 }
 
 .new-game-button {
+  margin-left: auto;
   padding: 9px 22px;
   border-radius: 100px;
   border: 1px solid rgba(140, 180, 255, 0.35);
@@ -1643,7 +1644,6 @@ body {
   }
   .controls-row {
     flex-wrap: wrap;
-    justify-content: center;
     gap: 6px;
   }
   .new-game-button,
@@ -1715,7 +1715,6 @@ body {
   }
   .controls-row {
     flex-wrap: wrap;
-    justify-content: center;
     gap: 5px;
   }
   .new-game-button,

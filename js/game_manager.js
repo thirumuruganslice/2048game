@@ -191,9 +191,9 @@ GameManager.prototype.removeToggle = function () {
     if (this.removesUsed >= 2) return;
     if (this._removePending) return;   // don't toggle while suck is mid-flight
     if (this._exchangePending) return; // don't toggle while swap is mid-flight
-    // Only allow removal when more than 3 tiles are on the board
+    // Only allow removal when more than 2 tiles are on the board
     var tileCount = (this.grid.size * this.grid.size) - this.grid.availableCells().length;
-    if (tileCount <= 3) return;
+    if (tileCount <= 2) return;
     // Cancel exchange mode if switching to remove
     if (this._exchangeMode) {
         this._exchangeMode = false;
@@ -471,7 +471,7 @@ GameManager.prototype.actuate = function () {
         isExchange: isExchange,
         removesLeft: Math.max(0, 2 - this.removesUsed),
         canRemove: this.removesUsed < 2 && !this.isTerminated() &&
-            ((this.grid.size * this.grid.size) - this.grid.availableCells().length) > 3,
+            ((this.grid.size * this.grid.size) - this.grid.availableCells().length) > 2,
         removeMode: this._removeMode,
         removePending: this._removePending,
         removeTarget: this._removeTarget,
