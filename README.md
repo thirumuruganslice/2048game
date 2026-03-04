@@ -10,14 +10,23 @@ A space-themed twist on the classic 2048 puzzle game — built with pure HTML, C
 
 ### Basic Controls
 
-| Action       | Keyboard                                        | Mobile           |
-| ------------ | ----------------------------------------------- | ---------------- |
-| Move tiles   | Arrow keys (`↑` `↓` `←` `→`) or `W` `A` `S` `D` | Swipe            |
-| Undo         | Click **↩ Undo** button                         | Tap **↩ Undo**   |
-| Swap tiles   | Click **⇄ Swap** or press `X`                   | Tap **⇄ Swap**   |
-| Remove tile  | Click **⊗ Remove** or press `B`                 | Tap **⊗ Remove** |
-| New game     | Click **New Game**                              | Tap **New Game** |
-| Toggle sound | Click **🔊** button                             | Tap **🔊**       |
+#### ⌨️ Keyboard
+
+- **Move tiles** — Arrow keys (`↑` `↓` `←` `→`) or `W` `A` `S` `D`
+- **Undo** — Click **↩ Undo** button
+- **Swap tiles** — Click **⇄ Swap** or press `X`
+- **Remove tile** — Click **⊗ Remove** or press `B`
+- **New game** — Click **New Game**
+- **Toggle sound** — Click **🔊** button
+
+#### 📱 Mobile
+
+- **Move tiles** — Swipe in any direction
+- **Undo** — Tap **↩ Undo**
+- **Swap tiles** — Tap **⇄ Swap**
+- **Remove tile** — Tap **⊗ Remove**
+- **New game** — Tap **New Game**
+- **Toggle sound** — Tap **🔊**
 
 ### Rules
 
