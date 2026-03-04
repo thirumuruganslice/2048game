@@ -1913,7 +1913,7 @@ body {
   }
   body {
     min-height: 100dvh;
-    margin-top: 20px;
+    margin-top: 25px;
     align-items: flex-start;
     padding: 8px 16px 20px;
   }
@@ -1925,7 +1925,8 @@ body {
     gap: 10px;
   }
   .hero {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    row-gap: 10px;
   }
   .board-shell {
     padding: 9px;
@@ -1989,7 +1990,7 @@ body {
   }
   body {
     min-height: 100dvh;
-    align-items: flex-start;
+    /* align-items: flex-start; */
     padding: 6px 18px 16px;
   }
   :root {
