@@ -388,165 +388,68 @@ var SoundManager = (function () {
         _noise(0.70, 180, 60, 0.22, 0.30);
     }
 
-    // ── AIR SUCTION — Tile removal: vacuum / rushing-air absorption ───────
-    // 1500ms arc matching CSS tile-bh-suck animation.
-    //
-    // Utility: builds a noise → bandpass → gain chain with a given Q so we
-    // can model the resonant "whistle" of air through a narrowing hole.
+    // ── REMOVE — Clean Whoosh Sound ──────────────────────────────────────
+    // 500ms — soft filtered noise swoosh + gentle descending tone
     // ─────────────────────────────────────────────────────────────────────
-    function _airRush(duration, freqStart, freqEnd, q, gainPeak, delay) {
-        var ctx = _getCtx();
-        var sr = ctx.sampleRate;
-        var len = Math.ceil(sr * (duration + 0.05));
-        var buf = ctx.createBuffer(1, len, sr);
-        var d = buf.getChannelData(0);
-        for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
 
-        var src = ctx.createBufferSource();
-        src.buffer = buf;
-
-        var bp = ctx.createBiquadFilter();
-        bp.type = "bandpass";
-        bp.Q.value = q;
-        bp.frequency.value = freqStart;
-
-        var env = ctx.createGain();
-        src.connect(bp);
-        bp.connect(env);
-        env.connect(_masterGain);
-
-        var t = ctx.currentTime + (delay || 0);
-        bp.frequency.setValueAtTime(freqStart, t);
-        bp.frequency.exponentialRampToValueAtTime(freqEnd, t + duration);
-        // Envelope: fast attack, hold, fast cut — sounds like a tight rush burst
-        env.gain.setValueAtTime(0, t);
-        env.gain.linearRampToValueAtTime(gainPeak, t + 0.018);
-        env.gain.setValueAtTime(gainPeak, t + duration * 0.72);
-        env.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-
-        src.start(t);
-        src.stop(t + duration + 0.05);
-    }
-
-    // Utility: lowpass body layer — adds the "chest" boom of rushing air
-    function _airBody(duration, cutoffStart, cutoffEnd, gainPeak, delay) {
-        var ctx = _getCtx();
-        var sr = ctx.sampleRate;
-        var len = Math.ceil(sr * (duration + 0.05));
-        var buf = ctx.createBuffer(1, len, sr);
-        var d = buf.getChannelData(0);
-        for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-
-        var src = ctx.createBufferSource();
-        src.buffer = buf;
-
-        var lp = ctx.createBiquadFilter();
-        lp.type = "lowpass";
-        lp.Q.value = 1.4;
-        lp.frequency.value = cutoffStart;
-
-        var env = ctx.createGain();
-        src.connect(lp);
-        lp.connect(env);
-        env.connect(_masterGain);
-
-        var t = ctx.currentTime + (delay || 0);
-        lp.frequency.setValueAtTime(cutoffStart, t);
-        lp.frequency.exponentialRampToValueAtTime(cutoffEnd, t + duration);
-        env.gain.setValueAtTime(0, t);
-        env.gain.linearRampToValueAtTime(gainPeak, t + 0.022);
-        env.gain.setValueAtTime(gainPeak, t + duration * 0.68);
-        env.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-        src.start(t);
-        src.stop(t + duration + 0.05);
-    }
-
-    // ─────────────────────────────────────────────────────────────────────
-    // Stage 1  (0 – 280ms)  : Seal-break — faint wispy hiss as suction starts
-    // Stage 2  (280 – 950ms): Main air rush — hard wideband whoosh with a
-    //   resonant whistle (air screaming through the narrowing gap), plus a
-    //   lowpass body layer so you feel the pressure drop in your chest
-    // Stage 3  (950 – 1200ms): Peak / final pull — everything at max volume;
-    //   a high-Q resonant scream at 2400→160 Hz cuts through the mix
-    // Stage 4  (1200 – 1500ms): Seal pop — hard low-mid click as the hole
-    //   closes shut, followed by a brief trailing hiss dying to silence
     function _playBlackHole() {
         var ctx = _getCtx();
         var now = ctx.currentTime;
 
-        // ================================================================
-        // STAGE 1 — Seal-break hiss (0 – 280ms)
-        // ================================================================
-        // Very faint high hiss — air seeping through before full suction
-        _airRush(0.28, 9000, 5500, 1.2, 0.08, 0.000);
-        _airRush(0.26, 7000, 4000, 1.0, 0.06, 0.040);
-        // Barely audible low whisper — anticipation
-        _airBody(0.28, 2200, 1200, 0.06, 0.000);
+        var master = ctx.createGain();
+        master.gain.setValueAtTime(0, now);
+        master.gain.linearRampToValueAtTime(0.45, now + 0.04);
+        master.gain.linearRampToValueAtTime(0.35, now + 0.25);
+        master.gain.exponentialRampToValueAtTime(0.001, now + 0.50);
+        master.connect(_masterGain);
 
-        // ================================================================
-        // STAGE 2 — Main air rush (280ms – 950ms)
-        // ================================================================
-        var T1 = 0.280;
+        // Soft whoosh — filtered noise sweep
+        var sr = ctx.sampleRate;
+        var len = Math.ceil(sr * 0.55);
+        var buf = ctx.createBuffer(1, len, sr);
+        var d = buf.getChannelData(0);
+        for (var j = 0; j < len; j++) d[j] = Math.random() * 2 - 1;
+        var nSrc = ctx.createBufferSource();
+        nSrc.buffer = buf;
+        var lp = ctx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.Q.value = 1.2;
+        lp.frequency.setValueAtTime(4000, now);
+        lp.frequency.exponentialRampToValueAtTime(200, now + 0.45);
+        var nEnv = ctx.createGain();
+        nEnv.gain.setValueAtTime(0.30, now);
+        nEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+        nSrc.connect(lp);
+        lp.connect(nEnv);
+        nEnv.connect(master);
+        nSrc.start(now);
+        nSrc.stop(now + 0.55);
 
-        // Primary whoosh: wide bandpass (Q=1.8) 8000→380 Hz — the roar of air
-        _airRush(0.68, 8000, 380, 1.8, 0.82, T1);
-        _airRush(0.65, 6200, 260, 1.5, 0.70, T1 + 0.030);
-        _airRush(0.60, 4800, 180, 1.4, 0.58, T1 + 0.070);
+        // Gentle descending tone
+        var osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(120, now + 0.40);
+        var oEnv = ctx.createGain();
+        oEnv.gain.setValueAtTime(0.15, now);
+        oEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+        osc.connect(oEnv);
+        oEnv.connect(master);
+        osc.start(now);
+        osc.stop(now + 0.50);
 
-        // Resonant whistle: high Q (5.0) sweep 3600→280 Hz — air through a hole
-        _airRush(0.62, 3600, 280, 5.0, 0.38, T1 + 0.010);
-        _airRush(0.58, 2800, 200, 4.5, 0.28, T1 + 0.060);
-
-        // Body/pressure layer: lowpass drops 5000→200 Hz — feel the vacuum
-        _airBody(0.68, 5000, 200, 0.55, T1);
-        _airBody(0.64, 3200, 140, 0.42, T1 + 0.050);
-        _airBody(0.58, 1800, 90, 0.30, T1 + 0.120);
-
-        // ================================================================
-        // STAGE 3 — Peak pull / final suction scream (950ms – 1200ms)
-        // ================================================================
-        var T2 = 0.950;
-
-        // Everything at maximum — the last gasp before the seal
-        _airRush(0.28, 9500, 420, 2.0, 0.95, T2);
-        _airRush(0.26, 7000, 280, 1.8, 0.80, T2 + 0.015);
-
-        // High-Q resonant scream — air screaming through a tiny closing gap
-        _airRush(0.26, 2400, 160, 6.5, 0.45, T2 + 0.005);
-        _airRush(0.22, 1800, 120, 5.5, 0.34, T2 + 0.030);
-
-        // Sub pressure drop
-        _airBody(0.28, 4500, 80, 0.60, T2);
-
-        // ================================================================
-        // STAGE 4 — Seal pop + silence (1200ms – 1500ms)
-        // ================================================================
-        var T3 = 1.200;
-
-        // Hard click / snap — the hole sealing shut (Helmholtz pop)
-        _noise(0.012, 8500, 3200, 0.80, T3);         // crack
-        _noise(0.020, 2400, 700, 0.65, T3 + 0.004); // thud body
-
-        // Sub-bass pressure equalisation thud: 80→22 Hz
-        var popOsc = ctx.createOscillator();
+        // Tiny soft pop
+        var pop = ctx.createOscillator();
+        pop.type = "sine";
+        pop.frequency.setValueAtTime(800, now);
+        pop.frequency.exponentialRampToValueAtTime(300, now + 0.08);
         var popEnv = ctx.createGain();
-        var popDrive = ctx.createWaveShaper();
-        popDrive.curve = _makeClipCurve(180);
-        popOsc.type = "sine";
-        popOsc.frequency.setValueAtTime(80, now + T3 + 0.003);
-        popOsc.frequency.exponentialRampToValueAtTime(22, now + T3 + 0.140);
-        popOsc.connect(popDrive);
-        popDrive.connect(popEnv);
-        popEnv.connect(_masterGain);
-        popEnv.gain.setValueAtTime(0, now + T3);
-        popEnv.gain.linearRampToValueAtTime(1.00, now + T3 + 0.005);
-        popEnv.gain.exponentialRampToValueAtTime(0.0001, now + T3 + 0.155);
-        popOsc.start(now + T3);
-        popOsc.stop(now + T3 + 0.165);
-
-        // Trailing hiss — residual air dissipating into silence
-        _airRush(0.28, 3500, 800, 1.2, 0.12, T3 + 0.018);
-        _airRush(0.22, 1800, 400, 1.0, 0.07, T3 + 0.080);
+        popEnv.gain.setValueAtTime(0.12, now);
+        popEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+        pop.connect(popEnv);
+        popEnv.connect(master);
+        pop.start(now);
+        pop.stop(now + 0.15);
     }
 
 

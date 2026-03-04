@@ -41,7 +41,7 @@ GameManager.prototype.setup = function () {
     this._exchangeFired = false;
     this.removesUsed = 0;      // hard cap: max 2 removes per game
     this._removeMode = false;
-    this._removePending = false; // true during the 1500ms suck animation
+    this._removePending = false; // true during the 1200ms singularity animation
     this._removeTarget = null;   // {x,y} of tile being consumed
     this._removeFired = false;
 
@@ -218,7 +218,7 @@ GameManager.prototype.handleTileClick = function (pos) {
         this._removeTarget = { x: pos.x, y: pos.y };
         this._clearMergeState();
         if (typeof SoundManager !== "undefined") SoundManager.play("blackHole");
-        this.actuate(); // render: tile gets black-hole-suck animation
+        this.actuate(); // render: tile gets remove animation
 
         var self = this;
         setTimeout(function () {
@@ -231,7 +231,7 @@ GameManager.prototype.handleTileClick = function (pos) {
             self.removesUsed++;
             self._removeFired = true;
             self.actuate();
-        }, 1000);
+        }, 600);
         return;
     }
 

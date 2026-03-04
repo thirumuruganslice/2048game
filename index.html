@@ -106,7 +106,87 @@
             </button>
         </div>
 
+        <div class="help-link-row">
+            <button class="help-button">ℹ How to Play</button>
+        </div>
+
     </main>
+
+    <!-- ── How to Play modal ────────────────────────────────────────────── -->
+    <div class="help-overlay" aria-hidden="true">
+        <div class="help-modal">
+            <button class="help-close" aria-label="Close">&times;</button>
+            <h2 class="help-title">How to Play</h2>
+
+            <div class="help-section">
+                <h3>Goal</h3>
+                <p>Merge tiles to create the <strong>2048</strong> tile. After winning, keep playing for a higher score.
+                </p>
+            </div>
+
+            <div class="help-section">
+                <h3>Controls</h3>
+                <div class="help-controls-grid">
+                    <div class="help-key-row"><span class="help-key">↑ ↓ ← →</span> <span>or</span> <span
+                            class="help-key">W A S D</span> <span>Move tiles</span></div>
+                    <div class="help-key-row"><span class="help-key">Swipe</span> <span>Move tiles (mobile)</span></div>
+                    <div class="help-key-row"><span class="help-key">X</span> <span>Toggle swap mode</span></div>
+                    <div class="help-key-row"><span class="help-key">B</span> <span>Toggle remove mode</span></div>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>Rules</h3>
+                <ol class="help-rules">
+                    <li>Slide tiles in any direction.</li>
+                    <li>Matching tiles merge into one with double the value.</li>
+                    <li>A new tile (2 or 4) spawns after every move.</li>
+                    <li>Score increases by the merged tile's value.</li>
+                </ol>
+            </div>
+
+            <div class="help-section">
+                <h3>Power-Ups <span class="help-muted">(2 uses each per game)</span></h3>
+                <div class="help-powers">
+                    <div class="help-power">
+                        <span class="help-power-icon help-power-undo">↩</span>
+                        <div>
+                            <strong>Undo</strong>
+                            <p>Revert your last move.</p>
+                        </div>
+                    </div>
+                    <div class="help-power">
+                        <span class="help-power-icon help-power-swap">⇄</span>
+                        <div>
+                            <strong>Swap</strong>
+                            <p>Exchange any two tiles. Tap first, then second.</p>
+                        </div>
+                    </div>
+                    <div class="help-power">
+                        <span class="help-power-icon help-power-remove">⊗</span>
+                        <div>
+                            <strong>Remove</strong>
+                            <p>Destroy any tile from the board.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-section">
+                <h3>Game Over</h3>
+                <p>The game ends when the board is full and no merges are possible.</p>
+            </div>
+
+            <div class="help-section help-tips">
+                <h3>Tips</h3>
+                <ul>
+                    <li>Build your highest tile in a corner.</li>
+                    <li>Save power-ups for tight situations.</li>
+                    <li>Work in one primary direction.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 
     <script src="js/sound_manager.js"></script>
     <script src="js/space-effects.js"></script>
@@ -131,6 +211,38 @@
                 btn.setAttribute("aria-pressed", muted ? "true" : "false");
                 if (icon) icon.textContent = muted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
                 btn.title = muted ? "Sound off — click to unmute" : "Sound on — click to mute";
+            });
+        }());
+
+        // ── Help modal wiring ────────────────────────────────────────────────
+        (function () {
+            var overlay = document.querySelector(".help-overlay");
+            var openBtn = document.querySelector(".help-button");
+            var closeBtn = document.querySelector(".help-close");
+            if (!overlay || !openBtn) return;
+
+            function open() {
+                overlay.classList.add("help-open");
+                overlay.setAttribute("aria-hidden", "false");
+            }
+            function close() {
+                overlay.classList.remove("help-open");
+                overlay.setAttribute("aria-hidden", "true");
+            }
+
+            openBtn.addEventListener("click", open);
+            if (closeBtn) closeBtn.addEventListener("click", close);
+
+            // Close on overlay background click
+            overlay.addEventListener("click", function (e) {
+                if (e.target === overlay) close();
+            });
+
+            // Close on Escape key
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "Escape" && overlay.classList.contains("help-open")) {
+                    close();
+                }
             });
         }());
     </script>

@@ -372,7 +372,7 @@ body {
   position: absolute;
   inset: 0;
   padding: 12px;
-  contain: layout style;
+  contain: layout style paint;
 }
 
 /* -------------------------------------------------------------------------
@@ -392,19 +392,21 @@ body {
   font-size: 1.3rem;
   color: #e6eefc;
   user-select: none;
-  /* promote each tile to its own GPU compositing layer */
+  /* force each tile onto its own GPU compositor layer */
   will-change: transform, left, top;
+  transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  perspective: 1000px;
   isolation: isolate;
   z-index: 2;
 }
 
-/* Sliding tiles */
+/* Sliding tiles — expo-out: instant start, buttery deceleration to grid snap */
 .tile.tile-moving {
   transition:
-    left 80ms cubic-bezier(0.4, 0, 0.2, 1),
-    top 80ms cubic-bezier(0.4, 0, 0.2, 1);
+    left 95ms cubic-bezier(0.16, 1, 0.3, 1),
+    top 95ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Undo slide-back — slower, ease-out so tiles decelerate into place */
@@ -421,9 +423,9 @@ body {
 
 .tile.tile-ghost.tile-moving {
   transition:
-    left 80ms cubic-bezier(0.4, 0, 0.2, 1),
-    top 80ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 80ms ease;
+    left 95ms cubic-bezier(0.16, 1, 0.3, 1),
+    top 95ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 95ms ease-out;
 }
 
 /* space-themed tile colours — each value is a different "planet/star" */
@@ -500,21 +502,32 @@ body {
 
 /* New tile appears after ghosts slide away */
 .tile-new {
-  animation: tile-appear 0.12s cubic-bezier(0.34, 1.56, 0.64, 1) 0.07s both;
+  animation: tile-appear 0.25s ease-out 0.07s both;
 }
 
-/* Merged result pops in after slide (80ms) completes */
+/* Merged result pops in after slide (95 ms) completes */
 .tile-merged {
   z-index: 3;
-  animation: tile-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both;
+  will-change: transform, opacity, box-shadow;
+  animation: tile-pop 0.24s ease-out 0.1s both;
 }
 
 @keyframes tile-appear {
-  from {
+  0% {
     opacity: 0;
-    transform: scale(0.4);
+    transform: scale(0.16);
   }
-  to {
+  52% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  78% {
+    transform: scale(0.97);
+  }
+  91% {
+    transform: scale(1.02);
+  }
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -523,6 +536,15 @@ body {
 @keyframes tile-pop {
   0% {
     transform: scale(0.82);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  72% {
+    transform: scale(0.97);
+  }
+  88% {
+    transform: scale(1.02);
   }
   100% {
     transform: scale(1);
@@ -837,6 +859,40 @@ body {
    Mute button
    ---------------------------------------------------------------------- */
 
+/* ── How to Play link ── */
+
+.help-link-row {
+  display: flex;
+  justify-content: center;
+  margin-top: -2px;
+}
+
+.help-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 4px 8px;
+  letter-spacing: 0.3px;
+  opacity: 0.55;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+  text-decoration: none;
+}
+
+.help-button:hover {
+  opacity: 1;
+  color: #c8d8ff;
+}
+
+.help-button:active {
+  opacity: 0.8;
+}
+
 .mute-button {
   width: 38px;
   height: 38px;
@@ -872,6 +928,226 @@ body {
   opacity: 0.45;
   background: rgba(60, 60, 90, 0.18);
   border-color: rgba(100, 100, 160, 0.3);
+}
+
+/* -------------------------------------------------------------------------
+   Help / How to Play Modal
+   ---------------------------------------------------------------------- */
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(3, 5, 15, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
+  padding: 20px;
+}
+
+.help-overlay.help-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.help-modal {
+  position: relative;
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  overflow-y: auto;
+  background: linear-gradient(
+    170deg,
+    rgba(15, 22, 55, 0.97),
+    rgba(8, 12, 35, 0.98) 60%,
+    rgba(5, 8, 22, 0.99)
+  );
+  border: 1px solid rgba(140, 180, 255, 0.2);
+  border-radius: 16px;
+  padding: 34px 32px 28px;
+  box-shadow:
+    0 0 50px rgba(80, 120, 255, 0.14),
+    0 10px 40px rgba(0, 0, 0, 0.55);
+  transform: translateY(10px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+.help-overlay.help-open .help-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* Scrollbar styling */
+.help-modal::-webkit-scrollbar {
+  width: 5px;
+}
+.help-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.help-modal::-webkit-scrollbar-thumb {
+  background: rgba(140, 180, 255, 0.2);
+  border-radius: 3px;
+}
+
+.help-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(140, 180, 255, 0.25);
+  background: rgba(80, 120, 255, 0.1);
+  color: #c8d8ff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+.help-close:hover {
+  background: rgba(80, 120, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.help-title {
+  font-family: "Orbitron", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffe680;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.help-section {
+  margin-bottom: 16px;
+}
+
+.help-section h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #c8d8ff;
+  margin-bottom: 7px;
+  letter-spacing: 0.5px;
+}
+
+.help-section p,
+.help-section li {
+  font-size: 0.86rem;
+  color: #a8b8d8;
+  line-height: 1.6;
+}
+
+.help-muted {
+  font-size: 0.72rem;
+  color: #7888a8;
+  font-weight: 400;
+}
+
+.help-rules {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.help-rules li {
+  margin-bottom: 3px;
+}
+
+.help-controls-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.help-key-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #a8b8d8;
+}
+
+.help-key {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: rgba(120, 150, 255, 0.15);
+  border: 1px solid rgba(140, 180, 255, 0.25);
+  color: #d0e0ff;
+  font-family: "Space Grotesk", monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.help-powers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-power {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.help-power-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.help-power-undo {
+  background: rgba(60, 200, 160, 0.15);
+  border: 1px solid rgba(100, 220, 180, 0.3);
+  color: #a0f0d8;
+}
+
+.help-power-swap {
+  background: rgba(180, 80, 255, 0.15);
+  border: 1px solid rgba(200, 120, 255, 0.3);
+  color: #e0b0ff;
+}
+
+.help-power-remove {
+  background: rgba(200, 30, 20, 0.15);
+  border: 1px solid rgba(255, 60, 40, 0.3);
+  color: #ff9988;
+}
+
+.help-power div strong {
+  font-size: 0.84rem;
+  color: #d0e0ff;
+}
+
+.help-power div p {
+  margin-top: 1px;
+  font-size: 0.78rem;
+}
+
+.help-tips ul {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.help-tips li {
+  margin-bottom: 3px;
 }
 
 /* -------------------------------------------------------------------------
@@ -1459,80 +1735,137 @@ body {
   }
 }
 
-/* ── Black-hole suck — particles injected by JS ── */
+/* ── Remove — red & black sparkle particles ── */
 
-/* Each debris streak: rotates, shrinks, flies to tile centre */
-.bh-particle {
+/* Crimson sparkle dot */
+.remove-sparkle {
   position: absolute;
-  border-radius: 2px;
   pointer-events: none;
   z-index: 25;
-  transform-origin: center;
-  animation: bh-particle-suck 540ms cubic-bezier(0.55, 0, 0.82, 0.4) forwards;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--s-color, #ff2a1a);
+  box-shadow:
+    0 0 5px 2px var(--s-color, rgba(255, 40, 20, 0.6)),
+    0 0 10px 3px rgba(255, 60, 20, 0.3);
+  animation: remove-sparkle-burst var(--s-dur, 400ms)
+    cubic-bezier(0.15, 0, 0.35, 1) forwards;
+  opacity: 0;
 }
 
-@keyframes bh-particle-suck {
+@keyframes remove-sparkle-burst {
   0% {
-    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(
+        calc(-50% + var(--s-tx) * 0.1),
+        calc(-50% + var(--s-ty) * 0.1)
+      )
+      scale(1.4);
     opacity: 1;
   }
-  40% {
-    opacity: 0.9;
-  }
-  80% {
+  45% {
     transform: translate(
-        calc(-50% + var(--bh-tx) * 0.8),
-        calc(-50% + var(--bh-ty) * 0.8)
+        calc(-50% + var(--s-tx) * 0.5),
+        calc(-50% + var(--s-ty) * 0.5)
       )
-      rotate(calc(var(--bh-rot) * 0.7)) scale(0.4);
-    opacity: 0.6;
+      scale(1);
+    opacity: 0.85;
+  }
+  75% {
+    transform: translate(
+        calc(-50% + var(--s-tx) * 0.85),
+        calc(-50% + var(--s-ty) * 0.85)
+      )
+      scale(0.5);
+    opacity: 0.4;
   }
   100% {
-    transform: translate(calc(-50% + var(--bh-tx)), calc(-50% + var(--bh-ty)))
-      rotate(var(--bh-rot)) scale(0.02);
+    transform: translate(calc(-50% + var(--s-tx)), calc(-50% + var(--s-ty)))
+      scale(0);
     opacity: 0;
   }
 }
 
-/* Gravitational distortion ring — expands then collapses inward */
-.bh-ring {
+/* Dark ember trail particle */
+.remove-ember {
+  position: absolute;
+  pointer-events: none;
+  z-index: 24;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px 3px rgba(120, 0, 0, 0.4);
+  animation: remove-ember-drift var(--e-dur, 400ms) cubic-bezier(0.3, 0, 0.5, 1)
+    forwards;
+  opacity: 0;
+}
+
+@keyframes remove-ember-drift {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(
+        calc(-50% + var(--e-tx) * 0.15),
+        calc(-50% + var(--e-ty) * 0.15)
+      )
+      scale(1.2);
+    opacity: 0.7;
+  }
+  60% {
+    transform: translate(
+        calc(-50% + var(--e-tx) * 0.6),
+        calc(-50% + var(--e-ty) * 0.6)
+      )
+      scale(0.8);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--e-tx)), calc(-50% + var(--e-ty)))
+      scale(0);
+    opacity: 0;
+  }
+}
+
+/* Crimson expanding glow ring */
+.remove-ring {
   position: absolute;
   transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 60, 20, 0.9);
   pointer-events: none;
   z-index: 24;
-  animation: bh-ring-contract 750ms cubic-bezier(0.18, 1, 0.4, 1) forwards;
+  border: 2px solid rgba(255, 50, 20, 0.8);
+  box-shadow:
+    0 0 14px 5px rgba(255, 40, 10, 0.4),
+    0 0 6px 2px rgba(200, 20, 0, 0.3);
+  animation: remove-ring-expand 450ms cubic-bezier(0.2, 0, 0.3, 1) forwards;
 }
 
-.bh-ring.bh-ring-2 {
-  border-color: rgba(160, 0, 200, 0.75);
-  animation-duration: 560ms;
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-@keyframes bh-ring-contract {
+@keyframes remove-ring-expand {
   0% {
-    transform: translate(-50%, -50%) scale(0.1);
-    opacity: 0.9;
-    filter: blur(0px);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+    border-color: rgba(255, 80, 30, 0.9);
+    box-shadow: 0 0 18px 6px rgba(255, 50, 10, 0.5);
   }
-  30% {
-    transform: translate(-50%, -50%) scale(1.8);
-    opacity: 0.85;
-    filter: blur(1px);
-  }
-  65% {
-    transform: translate(-50%, -50%) scale(2.8);
-    opacity: 0.55;
-    filter: blur(2px);
+  40% {
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 0.6;
+    border-color: rgba(200, 30, 0, 0.6);
+    box-shadow: 0 0 12px 4px rgba(180, 20, 0, 0.3);
   }
   100% {
-    transform: translate(-50%, -50%) scale(0.05);
+    transform: translate(-50%, -50%) scale(5);
     opacity: 0;
-    filter: blur(6px);
+    border-color: rgba(80, 0, 0, 0);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
@@ -1562,10 +1895,27 @@ body {
 
 /* ── Medium phones (≤ 520px) ── */
 @media (max-width: 520px) {
+  .help-modal {
+    width: min(440px, 94vw);
+    padding: 26px 22px 22px;
+    border-radius: 14px;
+  }
+  .help-title {
+    font-size: 1.2rem;
+    margin-bottom: 14px;
+  }
+  .help-section h3 {
+    font-size: 0.88rem;
+  }
+  .help-section p,
+  .help-section li {
+    font-size: 0.8rem;
+  }
   body {
     min-height: 100dvh;
-    align-items: center;
-    padding: 12px 16px 20px;
+    margin-top: 20px;
+    align-items: flex-start;
+    padding: 8px 16px 20px;
   }
   :root {
     --gap: 8px;
@@ -1573,6 +1923,9 @@ body {
   .app {
     width: min(440px, 90vw);
     gap: 10px;
+  }
+  .hero {
+    margin-bottom: 10px;
   }
   .board-shell {
     padding: 9px;
@@ -1610,10 +1963,34 @@ body {
 
 /* ── Small phones (≤ 420px) ── */
 @media (max-width: 420px) {
+  .help-modal {
+    width: 96vw;
+    max-height: 82vh;
+    padding: 22px 18px 18px;
+    border-radius: 12px;
+  }
+  .help-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  .help-section h3 {
+    font-size: 0.84rem;
+  }
+  .help-section p,
+  .help-section li {
+    font-size: 0.76rem;
+  }
+  .help-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1.1rem;
+    top: 10px;
+    right: 12px;
+  }
   body {
     min-height: 100dvh;
-    align-items: center;
-    padding: 10px 18px 16px;
+    align-items: flex-start;
+    padding: 6px 18px 16px;
   }
   :root {
     --gap: 7px;
@@ -1621,6 +1998,9 @@ body {
   .app {
     width: 100%;
     gap: 9px;
+  }
+  .hero {
+    margin-bottom: 5px;
   }
   .board-shell {
     padding: 8px;
@@ -1653,6 +2033,9 @@ body {
     padding: 7px 12px;
     font-size: 0.78rem;
   }
+  .help-button {
+    font-size: 0.72rem;
+  }
   .mute-button {
     width: 34px;
     height: 34px;
@@ -1682,17 +2065,51 @@ body {
 
 /* ── Very small phones (≤ 360px) ── */
 @media (max-width: 360px) {
+  .help-modal {
+    width: 98vw;
+    max-height: 80vh;
+    padding: 18px 14px 14px;
+    border-radius: 10px;
+  }
+  .help-title {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  .help-section {
+    margin-bottom: 12px;
+  }
+  .help-section h3 {
+    font-size: 0.78rem;
+  }
+  .help-section p,
+  .help-section li {
+    font-size: 0.72rem;
+  }
+  .help-key {
+    font-size: 0.68rem;
+    padding: 1px 6px;
+  }
+  .help-close {
+    width: 26px;
+    height: 26px;
+    font-size: 1rem;
+    top: 8px;
+    right: 10px;
+  }
   :root {
     --gap: 6px;
   }
   body {
     min-height: 100dvh;
-    align-items: center;
-    padding: 8px 14px 14px;
+    align-items: flex-start;
+    padding: 4px 14px 14px;
   }
   .app {
     width: 100%;
     gap: 7px;
+  }
+  .hero {
+    margin-bottom: 4px;
   }
   .board-shell {
     padding: 7px;
@@ -1723,6 +2140,9 @@ body {
   .remove-button {
     padding: 6px 10px;
     font-size: 0.72rem;
+  }
+  .help-button {
+    font-size: 0.66rem;
   }
   .mute-button {
     width: 30px;

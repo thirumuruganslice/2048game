@@ -231,85 +231,99 @@ HTMLActuator.prototype._fireSwapBurst = function (el) {
     }, 130);
 };
 
-// ---- Black-hole gravitational-suck particles ----------------------------
-// Spawns 16 inward-spiralling debris streaks around `el`.
-// Each particle starts at a radius and corkscrews inward to the tile centre.
-// Appended to tile-container so they share the same coordinate space.
+// ---- Remove sparkle particles — red & black theme ---------------------------
+// 16 crimson/ember sparkles + 6 dark ember trails + 1 crimson glow ring.
 
 HTMLActuator.prototype._fireBHParticles = function (el) {
     var self = this;
-    var COUNT = 16;
-    var COLORS = [
-        "#ff2200", "#ff5500", "#ff8844", "#ffaa00",
-        "#cc0088", "#9900cc", "#6600ff", "#3300aa",
-        "#ffffff", "#ff99cc", "#ffcc88", "#88aaff",
-        "#440022", "#990033", "#ee1144", "#cc66ff"
+
+    // ── Red/black sparkle colors ──
+    var SPARKLE_COLORS = [
+        "#ff2a1a", "#ff4422", "#ff6633", "#cc1100",
+        "#ff8844", "#ee2200", "#ff5533", "#dd3311",
+        "#ff1a0a", "#cc0000", "#aa0000", "#ff3322",
+        "#ffffff", "#ffccbb", "#ffaa88", "#ff6644"
+    ];
+    var EMBER_COLORS = [
+        "rgba(180,20,0,0.7)", "rgba(120,0,0,0.6)",
+        "rgba(60,0,0,0.5)", "rgba(200,30,10,0.6)",
+        "rgba(100,0,0,0.5)", "rgba(150,10,0,0.55)"
     ];
 
-    // Launch particles immediately — the suck animation plays instantly
     var rect = el.getBoundingClientRect();
     var cRect = self.tiles.getBoundingClientRect();
     var cx = (rect.left + rect.width / 2) - cRect.left;
     var cy = (rect.top + rect.height / 2) - cRect.top;
 
-    for (var i = 0; i < COUNT; i++) {
+    // ── 16 sparkle particles ──
+    for (var i = 0; i < 16; i++) {
         (function (idx) {
-            var pDelay = idx * 12 + Math.random() * 20; // stagger 0–200ms
+            var delay = idx * 12 + Math.random() * 30;
             setTimeout(function () {
                 var p = document.createElement("div");
-                p.className = "bh-particle";
-                var angleDeg = (idx / COUNT) * 360 + (Math.random() - 0.5) * 30;
-                var angleRad = angleDeg * Math.PI / 180;
-                var radius = 28 + Math.random() * 30;
-                var spawnX = cx + Math.cos(angleRad) * radius;
-                var spawnY = cy + Math.sin(angleRad) * radius;
-                var size = 3 + Math.random() * 5;
-                var color = COLORS[idx % COLORS.length];
-                var dur = 480 + Math.random() * 180; // 480–660ms
+                p.className = "remove-sparkle";
+                var angle = (idx / 16) * 360 + (Math.random() - 0.5) * 30;
+                var dist = 25 + Math.random() * 40;
+                var size = 2 + Math.random() * 3;
+                var dur = 300 + Math.random() * 200;
+                var color = SPARKLE_COLORS[idx];
 
                 p.style.cssText = [
-                    "left:" + spawnX + "px",
-                    "top:" + spawnY + "px",
+                    "left:" + cx + "px",
+                    "top:" + cy + "px",
                     "width:" + size + "px",
-                    "height:" + size * 2.2 + "px",
-                    "--bh-tx:" + (cx - spawnX) + "px",
-                    "--bh-ty:" + (cy - spawnY) + "px",
-                    "--bh-rot:" + (angleDeg + 90 + 300) + "deg",
-                    "background:" + color,
-                    "animation-duration:" + dur + "ms"
+                    "height:" + size + "px",
+                    "--s-tx:" + (Math.cos(angle * Math.PI / 180) * dist) + "px",
+                    "--s-ty:" + (Math.sin(angle * Math.PI / 180) * dist) + "px",
+                    "--s-dur:" + dur + "ms",
+                    "--s-color:" + color
                 ].join(";");
                 self.tiles.appendChild(p);
 
                 setTimeout(function () {
                     if (p.parentNode) p.parentNode.removeChild(p);
-                }, dur + 60);
-            }, pDelay);
+                }, dur + delay + 50);
+            }, delay);
         }(i));
     }
 
-    // Also fire a gravitational-distortion ring at 0ms
-    (function () {
-        var ring = document.createElement("div");
-        ring.className = "bh-ring";
-        ring.style.left = cx + "px";
-        ring.style.top = cy + "px";
-        self.tiles.appendChild(ring);
-        setTimeout(function () {
-            if (ring.parentNode) ring.parentNode.removeChild(ring);
-        }, 800);
-    }());
+    // ── 6 dark ember trail particles ──
+    for (var e = 0; e < 6; e++) {
+        (function (idx) {
+            var eDelay = 40 + idx * 25;
+            setTimeout(function () {
+                var em = document.createElement("div");
+                em.className = "remove-ember";
+                var eAngle = (idx / 6) * 360 + (Math.random() - 0.5) * 40;
+                var eDist = 15 + Math.random() * 20;
+                var eDur = 350 + Math.random() * 150;
 
-    // Second tighter ring at 200ms
+                em.style.cssText = [
+                    "left:" + cx + "px",
+                    "top:" + cy + "px",
+                    "--e-tx:" + (Math.cos(eAngle * Math.PI / 180) * eDist) + "px",
+                    "--e-ty:" + (Math.sin(eAngle * Math.PI / 180) * eDist) + "px",
+                    "--e-dur:" + eDur + "ms",
+                    "background:" + EMBER_COLORS[idx]
+                ].join(";");
+                self.tiles.appendChild(em);
+
+                setTimeout(function () {
+                    if (em.parentNode) em.parentNode.removeChild(em);
+                }, eDur + eDelay + 50);
+            }, eDelay);
+        }(e));
+    }
+
+    // ── Crimson glow ring ──
+    var ring = document.createElement("div");
+    ring.className = "remove-ring";
+    ring.style.left = cx + "px";
+    ring.style.top = cy + "px";
+    self.tiles.appendChild(ring);
     setTimeout(function () {
-        var ring2 = document.createElement("div");
-        ring2.className = "bh-ring bh-ring-2";
-        ring2.style.left = cx + "px";
-        ring2.style.top = cy + "px";
-        self.tiles.appendChild(ring2);
-        setTimeout(function () {
-            if (ring2.parentNode) ring2.parentNode.removeChild(ring2);
-        }, 600);
-    }, 200);
+        if (ring.parentNode) ring.parentNode.removeChild(ring);
+    }, 500);
 };
 
 // ---- Draw a single tile --------------------------------------------------

@@ -24,6 +24,8 @@
   transform: translate(-50%, -50%) scale(0);
   z-index: 9998;
   will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   animation: sfx-ring-expand cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
@@ -87,6 +89,8 @@
   transform: translate(-50%, -50%) scale(0);
   z-index: 9997;
   will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   animation: sfx-flash-burst 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
@@ -328,8 +332,8 @@
 /* Tier 1 — 2: soft stellar blink */
 .tile-2.tile-merged {
   animation:
-    tile-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-2 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop 0.22s ease-out 0.1s both,
+    sfx-glow-2 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-2 {
   0% {
@@ -346,8 +350,8 @@
 /* Tier 2 — 4: violet twinkle */
 .tile-4.tile-merged {
   animation:
-    tile-pop 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-4 0.39s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop 0.22s ease-out 0.1s both,
+    sfx-glow-4 0.39s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-4 {
   0% {
@@ -364,8 +368,8 @@
 /* Tier 3 — 8: cyan flare */
 .tile-8.tile-merged {
   animation:
-    tile-pop-strong 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-8 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-strong 0.26s ease-out 0.1s both,
+    sfx-glow-8 0.46s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-8 {
   0% {
@@ -382,8 +386,8 @@
 /* Tier 4 — 16: teal nova */
 .tile-16.tile-merged {
   animation:
-    tile-pop-strong 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-16 0.49s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-strong 0.26s ease-out 0.1s both,
+    sfx-glow-16 0.49s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-16 {
   0% {
@@ -400,8 +404,8 @@
 /* Tier 5 — 32: emerald burst */
 .tile-32.tile-merged {
   animation:
-    tile-pop-strong 0.19s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-32 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-strong 0.28s ease-out 0.1s both,
+    sfx-glow-32 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-32 {
   0% {
@@ -418,8 +422,8 @@
 /* Tier 6 — 64: golden flare */
 .tile-64.tile-merged {
   animation:
-    tile-pop-flare 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-64 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-flare 0.3s ease-out 0.1s both,
+    sfx-glow-64 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-64 {
   0% {
@@ -436,8 +440,8 @@
 /* Tier 7 — 128: supergiant burst */
 .tile-128.tile-merged {
   animation:
-    tile-pop-flare 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-128 0.58s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-flare 0.3s ease-out 0.1s both,
+    sfx-glow-128 0.58s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-128 {
   0% {
@@ -457,8 +461,8 @@
 /* Tier 8 — 256: red dwarf eruption */
 .tile-256.tile-merged {
   animation:
-    tile-pop-supernova 0.21s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-256 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-supernova 0.32s ease-out 0.1s both,
+    sfx-glow-256 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-256 {
   0% {
@@ -486,8 +490,8 @@
 /* Tier 9 — 512: purple supernova */
 .tile-512.tile-merged {
   animation:
-    tile-pop-supernova 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-512 0.78s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-supernova 0.32s ease-out 0.1s both,
+    sfx-glow-512 0.78s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 @keyframes sfx-glow-512 {
   0% {
@@ -521,9 +525,9 @@
 /* Tier 10 — 1024: quasar implosion */
 .tile-1024.tile-merged {
   animation:
-    tile-pop-supernova 0.24s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-1024 0.97s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both,
-    sfx-corona-1024 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    tile-pop-supernova 0.34s ease-out 0.1s both,
+    sfx-glow-1024 0.97s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both,
+    sfx-corona-1024 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
 @keyframes sfx-glow-1024 {
   0% {
@@ -579,9 +583,9 @@
 /* Tier 11 — 2048: cosmic core */
 .tile-2048.tile-merged {
   animation:
-    tile-pop-cosmic 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-2048 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both,
-    sfx-corona-2048 1.43s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both,
+    tile-pop-cosmic 0.38s ease-out 0.1s both,
+    sfx-glow-2048 1.17s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both,
+    sfx-corona-2048 1.43s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both,
     sfx-shimmer-2048 1.82s ease-in-out 0.4s infinite;
 }
 @keyframes sfx-glow-2048 {
@@ -649,8 +653,8 @@
 /* Super tile shimmer */
 .tile-super.tile-merged {
   animation:
-    tile-pop-cosmic 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) 0.08s both,
-    sfx-glow-super 1.04s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+    tile-pop-cosmic 0.36s ease-out 0.1s both,
+    sfx-glow-super 1.04s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -844,10 +848,20 @@
    Pop keyframe variants (stronger bounce for higher tiers)
    ────────────────────────────────────────────────────────────────────────── */
 
-/* Base — already in main.css, redeclared here for extended tiers */
+/* ── Spring-physics pop keyframes — overshoot then settle like a real spring ── */
+/* Base — also in main.css (redeclared here so tier overrides inherit it) */
 @keyframes tile-pop {
   0% {
     transform: scale(0.82);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+  72% {
+    transform: scale(0.97);
+  }
+  88% {
+    transform: scale(1.02);
   }
   100% {
     transform: scale(1);
@@ -856,7 +870,16 @@
 
 @keyframes tile-pop-strong {
   0% {
-    transform: scale(0.72);
+    transform: scale(0.68);
+  }
+  40% {
+    transform: scale(1.16);
+  }
+  68% {
+    transform: scale(0.95);
+  }
+  84% {
+    transform: scale(1.03);
   }
   100% {
     transform: scale(1);
@@ -865,7 +888,19 @@
 
 @keyframes tile-pop-flare {
   0% {
-    transform: scale(0.62);
+    transform: scale(0.55);
+  }
+  38% {
+    transform: scale(1.2);
+  }
+  64% {
+    transform: scale(0.93);
+  }
+  82% {
+    transform: scale(1.05);
+  }
+  93% {
+    transform: scale(0.99);
   }
   100% {
     transform: scale(1);
@@ -874,7 +909,19 @@
 
 @keyframes tile-pop-supernova {
   0% {
-    transform: scale(0.5);
+    transform: scale(0.42);
+  }
+  32% {
+    transform: scale(1.25);
+  }
+  58% {
+    transform: scale(0.91);
+  }
+  76% {
+    transform: scale(1.06);
+  }
+  90% {
+    transform: scale(0.98);
   }
   100% {
     transform: scale(1);
@@ -883,8 +930,24 @@
 
 @keyframes tile-pop-cosmic {
   0% {
-    transform: scale(0.35);
-    filter: brightness(3) saturate(1.5);
+    transform: scale(0.28);
+    filter: brightness(4) saturate(2) hue-rotate(20deg);
+  }
+  28% {
+    transform: scale(1.3);
+    filter: brightness(2) saturate(1.4) hue-rotate(10deg);
+  }
+  52% {
+    transform: scale(0.88);
+    filter: brightness(1.2) saturate(1.1) hue-rotate(3deg);
+  }
+  70% {
+    transform: scale(1.08);
+    filter: brightness(1.05) saturate(1);
+  }
+  85% {
+    transform: scale(0.97);
+    filter: brightness(1) saturate(1);
   }
   100% {
     transform: scale(1);
@@ -1023,256 +1086,107 @@
   }
 }
 
-/* ──────────────────────────────────────────────────────────────────────────
-   BLACK HOLE TILE ABSORPTION — full rebuild
-   1500ms total, three simultaneous tracks on the tile element:
-
-   Track 1 — bh-collapse  (transform: scale + filter)
-     Bright white-hot flare on lock-on → smooth uniform implosion →
-     complete colour drain → Hawking-radiation pulse at 96% → void.
-
-   Track 2 — bh-spin  (transform: rotate, piggy-backed on same property via
-     decomposed values — handled by nesting rotate() inside scale() in
-     bh-collapse so they share one transform: property cleanly)
-
-   Track 3 — bh-tremble  (CSS translate — independent property, no conflict)
-     Violent high-frequency jitter for first 600ms, amplitude decays to zero.
-
-   ::after — luminous cyan void-ring
-     Appears at full size instantly, always pulls straight inward to centre.
-     Uses mix-blend-mode: screen so it glows over the tile without obscuring.
-   ────────────────────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════
+   TILE REMOVE — Red & Black Sparkle Dissolve
+   600ms total. Crimson glow → ember shrink → sparkle burst.
+   ══════════════════════════════════════════════════════════════════════════ */
 
 .tile-bh-suck {
-  animation:
-    bh-collapse 1500ms cubic-bezier(0.28, 0, 0.72, 1) forwards,
-    bh-tremble 600ms linear forwards;
+  animation: tile-remove-ember 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 20 !important;
   overflow: visible;
   transform-origin: center center;
 }
 
-/* Luminous void ring — cyan/white, starts at max size, pulls straight in */
-.tile-bh-suck::after {
+/* Crimson inner glow ring */
+.tile-bh-suck::before {
   content: "";
   position: absolute;
-  inset: 50%;
-  border-radius: 50%;
+  inset: -4px;
+  border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(130, 230, 255, 0.92) 14%,
-    rgba(0, 150, 255, 0.72) 32%,
-    rgba(0, 50, 180, 0.42) 56%,
-    rgba(0, 0, 50, 0.14) 76%,
-    transparent 92%
-  );
-  mix-blend-mode: screen;
-  animation: bh-void-ring 1500ms cubic-bezier(0.28, 0, 0.72, 1) both;
   z-index: 21;
+  background: transparent;
+  border: 2px solid rgba(255, 40, 20, 0);
+  box-shadow: 0 0 0 0 rgba(255, 40, 20, 0);
+  animation: remove-glow-ring 500ms ease-out forwards;
 }
 
-/* ── Void ring: materialises at full size, collapses straight inward ── */
-@keyframes bh-void-ring {
-  0% {
-    inset: -50px;
-    opacity: 0;
-    filter: brightness(1);
-  }
-  5% {
-    inset: -50px;
-    opacity: 1;
-    filter: brightness(3.2);
-  } /* snap on — bright */
-  18% {
-    inset: -44px;
-    opacity: 0.92;
-    filter: brightness(2.4);
-  }
-  32% {
-    inset: -34px;
-    opacity: 0.82;
-    filter: brightness(1.8);
-  }
-  46% {
-    inset: -20px;
-    opacity: 0.68;
-    filter: brightness(1.3);
-  }
-  60% {
-    inset: -8px;
-    opacity: 0.5;
-    filter: brightness(0.8);
-  }
-  72% {
-    inset: 4%;
-    opacity: 0.34;
-    filter: brightness(0.4);
-  }
-  84% {
-    inset: 20%;
-    opacity: 0.16;
-    filter: brightness(0.1);
-  }
-  93% {
-    inset: 38%;
-    opacity: 0.05;
-    filter: brightness(0);
-  }
-  100% {
-    inset: 50%;
-    opacity: 0;
-    filter: brightness(0);
-  }
+/* Disable ::after */
+.tile-bh-suck::after {
+  display: none;
 }
 
-/* ── Main collapse: scale × rotation × colour drain ── */
-@keyframes bh-collapse {
-  /* Lock-on flash — white-hot then settles to hot cyan glow */
+/* ── Ember dissolve: red flash → darken → shrink to nothing ── */
+@keyframes tile-remove-ember {
   0% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
-    filter: brightness(1) saturate(1) blur(0px);
+    filter: brightness(1) blur(0px);
+    box-shadow: 0 0 0 0 rgba(220, 30, 0, 0);
   }
-  7% {
-    transform: scale(1.16) rotate(-4deg);
+  12% {
+    transform: scale(1.06) rotate(0deg);
     opacity: 1;
-    filter: brightness(4) saturate(2) blur(0px); /* white-hot flare */
+    filter: brightness(1.6) blur(0px);
+    box-shadow:
+      0 0 18px 6px rgba(255, 50, 10, 0.5),
+      0 0 4px 2px rgba(255, 120, 40, 0.8);
   }
-  14% {
-    transform: scale(1.04) rotate(-9deg);
-    opacity: 1;
-    filter: brightness(1.8) saturate(1.6) blur(0px); /* cyan lock glow */
-  }
-  20% {
-    transform: scale(0.98) rotate(-14deg);
-    opacity: 1;
-    filter: brightness(1.3) saturate(1.3) blur(0.2px);
-  }
-
-  /* Gravitational infall — smooth, accelerating shrink + spin */
   30% {
-    transform: scale(0.86) rotate(-26deg);
-    opacity: 0.97;
-    filter: brightness(1) saturate(1.1) blur(0.4px);
+    transform: scale(0.85) rotate(2deg);
+    opacity: 0.9;
+    filter: brightness(1.2) saturate(1.5) blur(0.3px);
+    box-shadow:
+      0 0 14px 5px rgba(200, 20, 0, 0.4),
+      0 0 3px 1px rgba(255, 80, 20, 0.6);
   }
-  42% {
-    transform: scale(0.68) rotate(-48deg);
-    opacity: 0.92;
-    filter: brightness(0.7) saturate(0.85) blur(0.9px);
+  55% {
+    transform: scale(0.45) rotate(5deg);
+    opacity: 0.6;
+    filter: brightness(0.7) saturate(2) blur(0.8px);
+    box-shadow:
+      0 0 10px 4px rgba(150, 0, 0, 0.35),
+      0 0 2px 1px rgba(255, 60, 10, 0.4);
   }
-  54% {
-    transform: scale(0.48) rotate(-80deg);
-    opacity: 0.82;
-    filter: brightness(0.42) saturate(0.58) blur(1.8px);
-  }
-
-  /* Event-horizon crossing — colour fully drained, heavy blur */
-  66% {
-    transform: scale(0.3) rotate(-120deg);
-    opacity: 0.64;
-    filter: brightness(0.18) saturate(0.25) blur(3.2px);
-  }
-  78% {
-    transform: scale(0.14) rotate(-170deg);
-    opacity: 0.4;
-    filter: brightness(0.05) saturate(0.06) blur(4.8px);
-  }
-  88% {
-    transform: scale(0.05) rotate(-210deg);
-    opacity: 0.2;
-    filter: brightness(0.01) saturate(0) blur(5.5px);
-  }
-
-  /* Hawking-radiation pulse — brief white spike before final void */
-  95% {
-    transform: scale(0.02) rotate(-238deg);
-    opacity: 0.65;
-    filter: brightness(6) saturate(0) blur(1px);
-  }
-  98% {
-    transform: scale(0.005) rotate(-248deg);
-    opacity: 0.04;
-    filter: brightness(0) saturate(0) blur(0px);
+  80% {
+    transform: scale(0.15) rotate(8deg);
+    opacity: 0.25;
+    filter: brightness(0.3) saturate(1) blur(1.5px);
+    box-shadow: 0 0 6px 3px rgba(80, 0, 0, 0.3);
   }
   100% {
-    transform: scale(0) rotate(-252deg);
+    transform: scale(0) rotate(10deg);
     opacity: 0;
-    filter: brightness(0) saturate(0) blur(0px);
+    filter: brightness(0) blur(3px);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
-/* ── Tremble: high-freq position jitter, decays to zero by 600ms ── */
-@keyframes bh-tremble {
-  /* 0–35% (0–210ms): violent grab, ±9px */
+/* ── Crimson glow ring — brief flash around tile ── */
+@keyframes remove-glow-ring {
   0% {
-    translate: 0px 0px;
-  }
-  4% {
-    translate: -9px 4px;
-  }
-  8% {
-    translate: 8px -6px;
-  }
-  12% {
-    translate: -9px 5px;
-  }
-  16% {
-    translate: 7px -7px;
+    border-color: rgba(255, 40, 20, 0);
+    box-shadow: 0 0 0 0 rgba(255, 40, 20, 0);
+    opacity: 0;
   }
   20% {
-    translate: -8px 5px;
+    border-color: rgba(255, 60, 20, 0.8);
+    box-shadow:
+      0 0 12px 4px rgba(255, 40, 10, 0.5),
+      inset 0 0 8px 2px rgba(255, 80, 30, 0.3);
+    opacity: 1;
   }
-  24% {
-    translate: 9px -4px;
-  }
-  28% {
-    translate: -7px 6px;
-  }
-  32% {
-    translate: 8px -5px;
-  }
-
-  /* 35–55% (210–330ms): medium pull, ±5px */
-  36% {
-    translate: -5px 3px;
-  }
-  40% {
-    translate: 6px -4px;
-  }
-  44% {
-    translate: -5px 4px;
-  }
-  48% {
-    translate: 4px -5px;
-  }
-  52% {
-    translate: -4px 3px;
-  }
-
-  /* 55–75% (330–450ms): fading tremor, ±2px */
-  56% {
-    translate: 3px -2px;
-  }
-  61% {
-    translate: -2px 2px;
-  }
-  66% {
-    translate: 2px -1px;
-  }
-  72% {
-    translate: -1px 2px;
-  }
-
-  /* 75–100% (450–600ms): smooth return to rest */
-  80% {
-    translate: 1px -1px;
-  }
-  90% {
-    translate: 0px 0px;
+  50% {
+    border-color: rgba(200, 20, 0, 0.5);
+    box-shadow:
+      0 0 8px 3px rgba(180, 20, 0, 0.3),
+      inset 0 0 5px 1px rgba(200, 40, 10, 0.2);
+    opacity: 0.6;
   }
   100% {
-    translate: 0px 0px;
+    border-color: rgba(80, 0, 0, 0);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    opacity: 0;
   }
 }
